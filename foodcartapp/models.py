@@ -1,5 +1,6 @@
 from django.db import models
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
+from phonenumber_field.modelfields import PhoneNumberField
 
 
 class Restaurant(models.Model):
@@ -50,6 +51,20 @@ class ProductCategory(models.Model):
         return self.name
 
 
+class Order(models.Model):
+    name = models.CharField('Имя', max_length=255, db_index=True)
+    surname = models.CharField('Фамилия', max_length=255, blank=True)
+    phone = PhoneNumberField('Телефон', db_index=True)
+    address = models.CharField('Адрес', max_length=255)
+
+    class Meta:
+        verbose_name = 'Заказ'
+        verbose_name_plural = 'Заказы'
+
+    def __str__(self):
+        return f'{self.name} {self.surname} {self.phone}'
+
+
 class Product(models.Model):
     name = models.CharField(
         'название',
@@ -81,6 +96,21 @@ class Product(models.Model):
         'описание',
         max_length=200,
         blank=True,
+    )
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.CASCADE,
+        related_name='products',
+        verbose_name='Заказы',
+        null=True,
+        blank=True,
+    )
+    quantity = models.PositiveSmallIntegerField(
+        'Колличество',
+        default=1,
+        db_index=True,
+        validators=[MinValueValidator(0),
+                    MaxValueValidator(100)]
     )
 
     objects = ProductQuerySet.as_manager()
@@ -121,3 +151,6 @@ class RestaurantMenuItem(models.Model):
 
     def __str__(self):
         return f"{self.restaurant.name} - {self.product.name}"
+
+
+

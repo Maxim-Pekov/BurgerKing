@@ -1,8 +1,10 @@
+import json
+
 from django.http import JsonResponse
 from django.templatetags.static import static
-
-
-from .models import Product
+from django.shortcuts import render, redirect
+from django.urls import reverse
+from .models import Product, Order
 
 
 def banners_list_api(request):
@@ -58,5 +60,39 @@ def product_list_api(request):
 
 
 def register_order(request):
+
+    def get_order_info(request):
+        try:
+            order_info = json.loads(request.body.decode())
+        except ValueError:
+            return JsonResponse({
+                'error': 'bla bla bla',
+            })
+        return order_info
+
+    if request.method == 'POST':
+        order_info = get_order_info(request)
+        products = order_info['products']
+        order = Order.objects.create(
+            name=order_info['firstname'],
+            surname=order_info['lastname'],
+            phone=order_info['phonenumber'],
+            address=order_info['address']
+        )
+        for product_by_order in products:
+            product_id = product_by_order['product']
+            product_qlt = product_by_order['quantity']
+            product = Product.objects.get(id=product_id)
+            product.order = order
+            product.quantity = product_qlt
+            product.save()
+        return redirect(reverse('#'))
+    return render(request, 'order.html')
+
+
+
+
+
+
     # TODO это лишь заглушка
     return JsonResponse({})
