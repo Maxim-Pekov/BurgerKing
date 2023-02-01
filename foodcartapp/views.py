@@ -6,6 +6,8 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from .models import Product, Order
 from rest_framework.decorators import api_view
+from rest_framework import status
+from rest_framework.response import Response
 
 
 def banners_list_api(request):
@@ -64,7 +66,28 @@ def product_list_api(request):
 def register_order(request):
     order_info = request.data
     print(order_info)
-    products = order_info['products']
+    try:
+        products = order_info['products']
+    except KeyError:
+        content = {
+            'Error. Required parameter missing : '
+            'Required parameter "products" is missing'
+        }
+        return Response(content, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+    if not isinstance(products, list):
+        content = {
+            'Error. Format is incorrect. : '
+            f'Parameter "products": "{products}", format is incorrect or not '
+            f'presented, expected "list" format'
+            }
+        return Response(content, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+    elif products == []:
+        content = {
+            'Error. Value is incorrect : '
+            f'Value "products" of parameter {products} is not supported'
+        }
+        return Response(content, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
     order = Order.objects.create(
         name=order_info['firstname'],
         surname=order_info['lastname'],
