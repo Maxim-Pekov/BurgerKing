@@ -52,9 +52,9 @@ class ProductCategory(models.Model):
 
 
 class Order(models.Model):
-    name = models.CharField('Имя', max_length=255, db_index=True)
-    surname = models.CharField('Фамилия', max_length=255, blank=True)
-    phone = PhoneNumberField('Телефон', db_index=True)
+    firstname = models.CharField('Имя', max_length=255, db_index=True)
+    lastname = models.CharField('Фамилия', max_length=255, blank=True)
+    phonenumber = PhoneNumberField('Телефон', db_index=True)
     address = models.CharField('Адрес', max_length=255)
 
     class Meta:
@@ -62,7 +62,7 @@ class Order(models.Model):
         verbose_name_plural = 'Заказы'
 
     def __str__(self):
-        return f'{self.name} {self.surname} {self.phone}'
+        return f'{self.firstname} {self.lastname} {self.phonenumber}'
 
 
 class Product(models.Model):
@@ -94,7 +94,7 @@ class Product(models.Model):
     )
     description = models.TextField(
         'описание',
-        max_length=200,
+        max_length=400,
         blank=True,
     )
     order = models.ForeignKey(
@@ -105,13 +105,13 @@ class Product(models.Model):
         null=True,
         blank=True,
     )
-    quantity = models.PositiveSmallIntegerField(
-        'Колличество',
-        default=1,
-        db_index=True,
-        validators=[MinValueValidator(0),
-                    MaxValueValidator(100)]
-    )
+    # quantity = models.PositiveSmallIntegerField(
+    #     'Колличество',
+    #     default=1,
+    #     db_index=True,
+    #     validators=[MinValueValidator(0),
+    #                 MaxValueValidator(100)]
+    # )
 
     objects = ProductQuerySet.as_manager()
 
@@ -121,6 +121,32 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.CASCADE,
+        related_name='order_items',
+        verbose_name='заказ'
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name='order_items',
+        verbose_name='продукт'
+    )
+    quantity = models.PositiveSmallIntegerField(
+        'Колличество',
+        default=1,
+        db_index=True,
+        validators=[MinValueValidator(0),
+                    MaxValueValidator(100)]
+    )
+
+    class Meta:
+        verbose_name = 'Пункт меню заказа'
+        verbose_name_plural = 'Пункты меню заказов'
 
 
 class RestaurantMenuItem(models.Model):

@@ -1,13 +1,10 @@
-import json
-
 from django.http import JsonResponse
 from django.templatetags.static import static
-from django.shortcuts import render, redirect
-from django.urls import reverse
-from .models import Product, Order
+from .models import Product, Order, OrderItem
 from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.serializers import ModelSerializer
 
 
 def banners_list_api(request):
@@ -62,82 +59,45 @@ def product_list_api(request):
     })
 
 
+class OrderItemSerializer(ModelSerializer):
+    class Meta:
+        model = OrderItem
+        fields = ['product', 'quantity']
+
+
+class OrderSerializer(ModelSerializer):
+    products = OrderItemSerializer(many=True, allow_empty=False)
+
+    class Meta:
+        model = Order
+        fields = ['firstname', 'lastname', 'phonenumber', 'address', 'products']
+
+
 @api_view(['POST'])
 def register_order(request):
     order_info = request.data
-    print(order_info)
-    api_order_keys = {'products': list, 'firstname': str, 'lastname': str, \
-        'phonenumber': str, 'address': str}
 
-    for key, value in api_order_keys.items():
-        try:
-            order_info_value = order_info[key]
-            if not isinstance(order_info_value, value):
-                content = {
-                    'Error. Format is incorrect. : '
-                    f'Parameter "{key}": "{order_info_value}", '
-                    f'format is incorrect or not '
-                    f'presented, expected "{value}" format'
-                }
-                return Response(content,
-                                status=status.HTTP_422_UNPROCESSABLE_ENTITY)
-        except KeyError:
-            content = {
-                'Error. Required parameter missing : '
-                f'Required parameter "{key}" is missing'
-            }
-            return Response(
-                content, status=status.HTTP_422_UNPROCESSABLE_ENTITY
-            )
-        if order_info_value in ([], ''):
-            content = {
-                'Error. Value is incorrect : '
-                f'Value "{key}" of parameter "{order_info_value}" is '
-                f'not supported'
-            }
-            return Response(content,
-                            status=status.HTTP_422_UNPROCESSABLE_ENTITY)
-        if key == 'phonenumber' and order_info_value[2:5] == '000':
-            content = {
-                'Error. Phonenumber is incorrect : '
-                f'Value "{key}" of parameter "{order_info_value}" is '
-                f'not supported'
-            }
-            return Response(content,
-                            status=status.HTTP_422_UNPROCESSABLE_ENTITY)
-        # if key == 'products' and order_info_value[]:
-        #
-        #     content = {
-        #         'Error. Phonenumber is incorrect : '
-        #         f'Value "{key}" of parameter "{order_info_value}" is '
-        #         f'not supported'
-        #     }
-        #     return Response(content,
-        #                     status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+    serializer = OrderSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)  # выкинет
+    # ValidationError
+
     order = Order.objects.create(
-        name=order_info['firstname'],
-        surname=order_info['lastname'],
-        phone=order_info['phonenumber'],
+        firstname=order_info['firstname'],
+        lastname=order_info['lastname'],
+        phonenumber=order_info['phonenumber'],
         address=order_info['address']
     )
-
-    product_count = Product.objects.all().count()
 
     for product_by_order in order_info['products']:
         product_id = product_by_order['product']
         product_qlt = product_by_order['quantity']
 
-        if product_id > product_count:
-            content = {
-                'Error. Id of product is incorrect : '
-                f'Value "{product_id}" of parameter "product[id]" is '
-                f'not supported'
-            }
-            return Response(content,
-                            status=status.HTTP_422_UNPROCESSABLE_ENTITY)
-
         product = Product.objects.get(id=product_id)
-        product.order = order
-        product.quantity = product_qlt
-        product.save()
-    return JsonResponse({})
+        OrderItem.objects.create(
+            order=order,
+            product=product,
+            quantity=product_qlt
+        )
+    return Response({
+        'good': 'good',
+    })
