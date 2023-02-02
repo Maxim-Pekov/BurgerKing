@@ -6,7 +6,7 @@ from django.utils.html import format_html
 from .models import Product
 from .models import ProductCategory
 from .models import Restaurant
-from .models import RestaurantMenuItem, Order
+from .models import RestaurantMenuItem, Order, OrderItem
 
 
 class RestaurantMenuItemInline(admin.TabularInline):
@@ -106,17 +106,21 @@ class ProductAdmin(admin.ModelAdmin):
     pass
 
 
-class ProductInline(admin.TabularInline):
-    model = Product
-    list_display = ('name', 'price', 'quantity',)
-    fields = ('name', 'price', 'quantity',)
+@admin.register(OrderItem)
+class OrderItemAdmin(admin.ModelAdmin):
+    list_display = ('quantity',)
+    fields = ('quantity',)
+
+
+class OrderItemInline(admin.TabularInline):
+    model = OrderItem
     extra = 0
 
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('name', 'surname', 'phone', 'address')
-    list_display_links = ('name', 'surname', 'address')
+    list_display = ('firstname', 'lastname', 'phonenumber', 'address')
+    list_display_links = ('firstname', 'lastname', 'address')
     inlines = [
-        ProductInline,
+        OrderItemInline,
     ]
