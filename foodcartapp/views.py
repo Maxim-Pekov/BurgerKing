@@ -75,21 +75,18 @@ class OrderSerializer(ModelSerializer):
 
 @api_view(['POST'])
 def register_order(request):
-    order_info = request.data
-
     serializer = OrderSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)  # выкинет
-    # ValidationError
+    serializer.is_valid(raise_exception=True)
 
     order = Order.objects.create(
-        firstname=order_info['firstname'],
-        lastname=order_info['lastname'],
-        phonenumber=order_info['phonenumber'],
-        address=order_info['address']
+        firstname=serializer.validated_data['firstname'],
+        lastname=serializer.validated_data['lastname'],
+        phonenumber=serializer.validated_data['phonenumber'],
+        address=serializer.validated_data['address']
     )
 
-    for product_by_order in order_info['products']:
-        product_id = product_by_order['product']
+    for product_by_order in serializer.validated_data['products']:
+        product_id = product_by_order['product'].id
         product_qlt = product_by_order['quantity']
 
         product = Product.objects.get(id=product_id)
