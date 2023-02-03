@@ -5,6 +5,7 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
+from rest_framework.renderers import JSONRenderer
 
 
 def banners_list_api(request):
@@ -66,35 +67,39 @@ class OrderItemSerializer(ModelSerializer):
 
 
 class OrderSerializer(ModelSerializer):
-    products = OrderItemSerializer(many=True, allow_empty=False)
+    products = OrderItemSerializer(
+        many=True, allow_empty=False, write_only=True
+    )
 
     class Meta:
         model = Order
-        fields = ['firstname', 'lastname', 'phonenumber', 'address', 'products']
+        fields = [
+            'id', 'firstname', 'lastname', 'phonenumber', 'address', 'products'
+        ]
 
 
 @api_view(['POST'])
 def register_order(request):
     serializer = OrderSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-
-    order = Order.objects.create(
-        firstname=serializer.validated_data['firstname'],
-        lastname=serializer.validated_data['lastname'],
-        phonenumber=serializer.validated_data['phonenumber'],
-        address=serializer.validated_data['address']
-    )
-
-    for product_by_order in serializer.validated_data['products']:
-        product_id = product_by_order['product'].id
-        product_qlt = product_by_order['quantity']
-
-        product = Product.objects.get(id=product_id)
-        OrderItem.objects.create(
-            order=order,
-            product=product,
-            quantity=product_qlt
+    if serializer.is_valid(raise_exception=True):
+        order = Order.objects.create(
+            firstname=serializer.validated_data['firstname'],
+            lastname=serializer.validated_data['lastname'],
+            phonenumber=serializer.validated_data['phonenumber'],
+            address=serializer.validated_data['address']
         )
-    return Response({
-        'good': 'good',
-    })
+
+        for product_by_order in serializer.validated_data['products']:
+            product_id = product_by_order['product'].id
+            product_qlt = product_by_order['quantity']
+
+            product = Product.objects.get(id=product_id)
+            OrderItem.objects.create(
+                order=order,
+                product=product,
+                quantity=product_qlt
+            )
+
+        serializer = OrderSerializer(order)
+        content = JSONRenderer().render(serializer.data)
+        return Response(content, status=status.HTTP_200_OK)

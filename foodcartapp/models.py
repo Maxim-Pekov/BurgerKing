@@ -105,14 +105,6 @@ class Product(models.Model):
         null=True,
         blank=True,
     )
-    # quantity = models.PositiveSmallIntegerField(
-    #     'Колличество',
-    #     default=1,
-    #     db_index=True,
-    #     validators=[MinValueValidator(0),
-    #                 MaxValueValidator(100)]
-    # )
-
     objects = ProductQuerySet.as_manager()
 
     class Meta:
