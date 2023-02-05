@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from phonenumber_field.modelfields import PhoneNumberField
+from django.db.models import Count, Sum, F
 
 
 class Restaurant(models.Model):
@@ -51,11 +52,19 @@ class ProductCategory(models.Model):
         return self.name
 
 
+class OrderQuerySet(models.QuerySet):
+    def calculate_total_sum(self):
+        return self.annotate(total_sum=Sum((F('order_items__quantity') * F(
+            'order_items__product__price'))))
+
+
 class Order(models.Model):
     firstname = models.CharField('Имя', max_length=255, db_index=True)
     lastname = models.CharField('Фамилия', max_length=255, blank=True)
     phonenumber = PhoneNumberField('Телефон', db_index=True)
     address = models.CharField('Адрес', max_length=255)
+
+    objects = OrderQuerySet.as_manager()
 
     class Meta:
         verbose_name = 'Заказ'
@@ -115,6 +124,11 @@ class Product(models.Model):
         return self.name
 
 
+# class OrderItemQuerySet(models.QuerySet):
+#     def price_sum(self):
+#         return self.annotate(sum_price=(F('quantity') * F('product__price')))
+
+
 class OrderItem(models.Model):
     order = models.ForeignKey(
         Order,
@@ -135,10 +149,14 @@ class OrderItem(models.Model):
         validators=[MinValueValidator(0),
                     MaxValueValidator(100)]
     )
+    # objects = OrderItemQuerySet.as_manager()
 
     class Meta:
         verbose_name = 'Пункт меню заказа'
         verbose_name_plural = 'Пункты меню заказов'
+
+    def __str__(self):
+        return f"{self.product.name} - {self.order.firstname}"
 
 
 class RestaurantMenuItem(models.Model):
