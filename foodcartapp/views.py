@@ -7,6 +7,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
 from rest_framework.renderers import JSONRenderer
+from django.db import transaction
 
 
 def banners_list_api(request):
@@ -79,6 +80,7 @@ class OrderSerializer(ModelSerializer):
         ]
 
 
+@transaction.atomic
 @api_view(['POST'])
 def register_order(request):
     serializer = OrderSerializer(data=request.data)
