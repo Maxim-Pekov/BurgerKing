@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db.models import F
 from django.shortcuts import reverse
 from django.templatetags.static import static
 from django.utils.html import format_html
@@ -108,8 +109,16 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
-    list_display = ('quantity',)
-    fields = ('quantity',)
+    list_display = ('quantity', 'price')
+    fields = ('quantity', 'price')
+
+    def save_formset(self, request, form, formset, change):
+        instances = formset.save(commit=False)
+
+        for instance in instances:
+            instance.price = request.annotate(
+                sum_price=(F('quantity') * F('product__price')))
+        instance.save()
 
 
 class OrderItemInline(admin.TabularInline):

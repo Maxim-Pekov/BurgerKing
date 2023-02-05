@@ -2,6 +2,7 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from phonenumber_field.modelfields import PhoneNumberField
 from django.db.models import Count, Sum, F
+from django.core.exceptions import ValidationError
 
 
 class Restaurant(models.Model):
@@ -124,9 +125,9 @@ class Product(models.Model):
         return self.name
 
 
-# class OrderItemQuerySet(models.QuerySet):
-#     def price_sum(self):
-#         return self.annotate(sum_price=(F('quantity') * F('product__price')))
+class OrderItemQuerySet(models.QuerySet):
+    def price_sum(self):
+        return self.annotate(sum_price=(F('quantity') * F('product__price')))
 
 
 class OrderItem(models.Model):
@@ -149,7 +150,13 @@ class OrderItem(models.Model):
         validators=[MinValueValidator(0),
                     MaxValueValidator(100)]
     )
-    # objects = OrderItemQuerySet.as_manager()
+    price = models.DecimalField(
+        'Стоймость',
+        max_digits=8,
+        decimal_places=2,
+        validators=[MinValueValidator(0, 'Цена не может быть меньше 0')]
+    )
+    objects = OrderItemQuerySet.as_manager()
 
     class Meta:
         verbose_name = 'Пункт меню заказа'

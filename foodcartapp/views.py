@@ -1,3 +1,4 @@
+from django.db.models import F
 from django.http import JsonResponse
 from django.templatetags.static import static
 from .models import Product, Order, OrderItem
@@ -94,10 +95,12 @@ def register_order(request):
             product_qlt = product_by_order['quantity']
 
             product = Product.objects.get(id=product_id)
+
             OrderItem.objects.create(
                 order=order,
                 product=product,
-                quantity=product_qlt
+                quantity=product_qlt,
+                price=product.price * product_qlt,
             )
 
         serializer = OrderSerializer(order)
