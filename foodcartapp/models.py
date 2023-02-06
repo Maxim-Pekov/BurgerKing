@@ -2,6 +2,7 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from phonenumber_field.modelfields import PhoneNumberField
 from django.db.models import Count, Sum, F
+from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 
 
@@ -59,7 +60,22 @@ class OrderQuerySet(models.QuerySet):
             'order_items__product__price'))))
 
 
+class Status(models.TextChoices):
+    RAW = 'RA', _('Необработанный')
+    HIRED = 'HR', _('Принят в работу')
+    ASSEMBLY = 'AS', _('Сборка')
+    DELIVERY = 'DL', _('Доставка')
+    END = 'EN', _('Выполнен')
+
+
 class Order(models.Model):
+    status = models.CharField(
+        'Статус заказа',
+        max_length=2,
+        choices=Status.choices,
+        default=Status.RAW,
+        db_index=True
+    )
     firstname = models.CharField('Имя', max_length=255, db_index=True)
     lastname = models.CharField('Фамилия', max_length=255, blank=True)
     phonenumber = PhoneNumberField('Телефон', db_index=True)

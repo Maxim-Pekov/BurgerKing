@@ -130,8 +130,9 @@ class OrderItemInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('firstname', 'lastname', 'phonenumber', 'address')
+    list_display = ('status', 'firstname', 'lastname', 'phonenumber', 'address')
     list_display_links = ('firstname', 'lastname', 'address')
+    list_editable = ('status',)
     inlines = [
         OrderItemInline,
     ]
