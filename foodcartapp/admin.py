@@ -1,8 +1,10 @@
 from django.contrib import admin
 from django.db.models import F
+from django.http import HttpResponseRedirect
 from django.shortcuts import reverse
 from django.templatetags.static import static
 from django.utils.html import format_html
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from .models import Product
 from .models import ProductCategory
@@ -133,3 +135,13 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [
         OrderItemInline,
     ]
+
+    def response_post_save_change(self, request, obj):
+        res = super().response_post_save_change(request, obj)
+        if url_has_allowed_host_and_scheme(
+            request.META['SERVER_NAME'], '127.0.0.1:8000'
+        ):
+            if "next" in request.GET:
+                return HttpResponseRedirect('/manager/orders')
+            else:
+                return res
