@@ -111,8 +111,14 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
-    list_display = ('quantity', 'price')
+    list_display = ('get_product', 'get_order', 'quantity', 'price')
     fields = ('quantity', 'price')
+
+    def get_product(self, obj):
+        return obj.product.name
+
+    def get_order(selfself, obj):
+        return obj.order.firstname
 
     def save_formset(self, request, form, formset, change):
         instances = formset.save(commit=False)
@@ -133,6 +139,13 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = ('status', 'firstname', 'lastname', 'phonenumber', 'address')
     list_display_links = ('firstname', 'lastname', 'address')
     list_editable = ('status',)
+    list_filter = ('status',)
+    fieldsets = (
+        ('Покупатель', {
+            'fields': (('status',), ('firstname', 'lastname'),
+                       ('phonenumber', 'address'))
+        }),
+    )
     inlines = [
         OrderItemInline,
     ]
