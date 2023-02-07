@@ -138,9 +138,9 @@ class OrderItemInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('status', 'firstname', 'lastname', 'phonenumber', 'address')
+    list_display = ('status', 'payment', 'firstname', 'lastname', 'phonenumber', 'address')
     list_display_links = ('firstname', 'lastname', 'address')
-    list_editable = ('status',)
+    list_editable = ('status', 'payment')
     list_filter = ('status', 'registrated_at', 'called_at', 'delivered_at')
     readonly_fields = ('registrated_at',)
     inlines = [
@@ -149,7 +149,7 @@ class OrderAdmin(admin.ModelAdmin):
     fieldsets = (
         ('Покупатель', {
             'fields': (
-                ('status',), ('firstname', 'lastname'),
+                ('status', 'payment'), ('firstname', 'lastname'),
                 ('phonenumber', 'address'), ('comment',),
             ),
         },),

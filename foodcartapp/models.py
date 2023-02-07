@@ -68,12 +68,25 @@ class Status(models.TextChoices):
     END = 'EN', _('Выполнен')
 
 
+class Payment(models.TextChoices):
+    CASH = 'CS', _('Наличностью')
+    CARD = 'CD', _('Электронно')
+    RAW = 'NO', _('Невыбрано')
+
+
 class Order(models.Model):
     status = models.CharField(
         'Статус заказа',
         max_length=2,
         choices=Status.choices,
         default=Status.RAW,
+        db_index=True
+    )
+    payment = models.CharField(
+        'Оплата',
+        max_length=2,
+        choices=Payment.choices,
+        default=Payment.RAW,
         db_index=True
     )
     firstname = models.CharField('Имя', max_length=255, db_index=True)
