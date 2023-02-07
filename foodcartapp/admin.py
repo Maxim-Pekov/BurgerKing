@@ -10,6 +10,8 @@ from .models import Product
 from .models import ProductCategory
 from .models import Restaurant
 from .models import RestaurantMenuItem, Order, OrderItem
+from django.forms import TextInput, Textarea
+from django.db import models
 
 
 class RestaurantMenuItemInline(admin.TabularInline):
@@ -143,9 +145,13 @@ class OrderAdmin(admin.ModelAdmin):
     fieldsets = (
         ('Покупатель', {
             'fields': (('status',), ('firstname', 'lastname'),
-                       ('phonenumber', 'address'))
+                       ('phonenumber', 'address'), ('comment',))
         }),
     )
+    formfield_overrides = {
+        models.CharField: {'widget': TextInput(attrs={'size':'20'})},
+        models.TextField: {'widget': Textarea(attrs={'rows':2, 'cols':70})},
+    }
     inlines = [
         OrderItemInline,
     ]
