@@ -141,20 +141,30 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = ('status', 'firstname', 'lastname', 'phonenumber', 'address')
     list_display_links = ('firstname', 'lastname', 'address')
     list_editable = ('status',)
-    list_filter = ('status',)
+    list_filter = ('status', 'registrated_at', 'called_at', 'delivered_at')
+    readonly_fields = ('registrated_at',)
+    inlines = [
+        OrderItemInline,
+    ]
     fieldsets = (
         ('Покупатель', {
-            'fields': (('status',), ('firstname', 'lastname'),
-                       ('phonenumber', 'address'), ('comment',))
-        }),
+            'fields': (
+                ('status',), ('firstname', 'lastname'),
+                ('phonenumber', 'address'), ('comment',),
+            ),
+        },),
+        ('Время', {
+             'fields': (
+                 ('registrated_at',),
+                 ('called_at',),
+                 ('delivered_at',)
+             )
+         })
     )
     formfield_overrides = {
         models.CharField: {'widget': TextInput(attrs={'size':'20'})},
         models.TextField: {'widget': Textarea(attrs={'rows':2, 'cols':70})},
     }
-    inlines = [
-        OrderItemInline,
-    ]
 
     def response_post_save_change(self, request, obj):
         res = super().response_post_save_change(request, obj)

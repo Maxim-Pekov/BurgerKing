@@ -81,10 +81,28 @@ class Order(models.Model):
     phonenumber = PhoneNumberField('Телефон', db_index=True)
     address = models.CharField('Адрес', max_length=255)
     comment = models.TextField('Коментарий')
+    registrated_at = models.DateTimeField(
+        'Дата оформления',
+        auto_now_add=True,
+        db_index=True
+    )
+    called_at = models.DateTimeField(
+        'Дата звонка',
+        db_index=True,
+        null=True,
+        blank=True
+    )
+    delivered_at = models.DateTimeField(
+        'Дата доставки',
+        db_index=True,
+        null=True,
+        blank=True
+    )
 
     objects = OrderQuerySet.as_manager()
 
     class Meta:
+        ordering = ['-registrated_at']
         verbose_name = 'Заказ'
         verbose_name_plural = 'Заказы'
 
