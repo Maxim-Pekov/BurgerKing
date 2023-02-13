@@ -1,11 +1,13 @@
+from .coordinates import fetch_coordinates
+from geopy import distance
 from collections import Counter
 
 from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator
-from phonenumber_field.modelfields import PhoneNumberField
-from django.db.models import Count, Sum, F
+from django.conf import settings
+from django.db.models import Sum, F
 from django.utils.translation import gettext_lazy as _
-from django.core.exceptions import ValidationError
+from phonenumber_field.modelfields import PhoneNumberField
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class Restaurant(models.Model):
@@ -23,6 +25,8 @@ class Restaurant(models.Model):
         max_length=50,
         blank=True,
     )
+    lng = models.FloatField('Долгота')
+    lat = models.FloatField('Широта')
 
     class Meta:
         verbose_name = 'ресторан'
@@ -35,8 +39,7 @@ class Restaurant(models.Model):
 class ProductQuerySet(models.QuerySet):
     def available(self):
         products = (
-            RestaurantMenuItem.objects
-            .filter(availability=True)
+            RestaurantMenuItem.objects.filter(availability=True)
             .values_list('product')
         )
         return self.filter(pk__in=products)
@@ -58,31 +61,59 @@ class ProductCategory(models.Model):
 
 class OrderQuerySet(models.QuerySet):
     def calculate_total_sum(self):
-        return self.annotate(total_sum=Sum((F('order_items__quantity') * F(
-            'order_items__product__price'))))
+        return self.annotate(
+            total_sum=Sum(
+                (F('order_items__quantity') * F('order_items__product__price'))
+            )
+        )
 
     def get_availability_restaurants(self):
         products_in_orders = {}
         rest_by_order = {}
         for order in self:
-            items = OrderItem.objects.select_related('product').filter(
-                order=order)
+            items = OrderItem.objects.select_related('product').\
+                filter(order=order)
             products_in_orders[order] = [
                 item.product for item in items
             ]
-        restaurants_menu_items = RestaurantMenuItem.objects.filter(
-            availability=True).select_related("product", "restaurant")
+        restaurants_menu_items = RestaurantMenuItem.objects.\
+            filter(availability=True).select_related("product", "restaurant")
         for order, products_in_order in products_in_orders.items():
-            restaurants_by_products = restaurants_menu_items.filter(
-                product__in=products_in_order)
+            restaurants_by_products = restaurants_menu_items.\
+                filter(product__in=products_in_order)
+
             restaurants_by_products = [
                 restaurant.restaurant for restaurant in restaurants_by_products
             ]
             number_of_restaurants = dict(Counter(restaurants_by_products))
             restaurants = []
-            for restaurant_title, count in number_of_restaurants.items():
-                if count == len(products_in_order):
-                    restaurants.append(restaurant_title)
+            for restaurant, count in number_of_restaurants.items():
+                restaurant_coordinate = (restaurant.lat, restaurant.lng)
+                try:
+                    order_coordinate = sorted(
+                        fetch_coordinates(
+                            settings.YANDEX_API_KEY, order.address
+                        ),
+                        reverse=True
+                    )
+                except TypeError:
+                    restaurants.append(
+                        'Ошибка определения координат'
+                    )
+                    continue
+                delivery_distance = distance.distance(
+                    restaurant_coordinate,
+                    order_coordinate
+                ).km
+                if delivery_distance > 100:
+                    restaurants.append(
+                        'Ошибка определения координат'
+                    )
+                elif count == len(products_in_order):
+                    restaurants.append(
+                        f'{restaurant.name}  {round(delivery_distance, 1)} км.'
+                    )
+            restaurants = sorted(restaurants, key=lambda i: i[-8:-6])
             rest_by_order[order] = restaurants
         for order in self:
             order.restaurant_can_cook = rest_by_order[order]
@@ -127,9 +158,7 @@ class Order(models.Model):
         Restaurant,
         verbose_name='Ресторан для приготовления',
         related_name='orders',
-        null=True,
         blank=True,
-
     )
     registrated_at = models.DateTimeField(
         'Дата оформления',
@@ -189,15 +218,7 @@ class Product(models.Model):
     )
     description = models.TextField(
         'описание',
-        max_length=400,
-        blank=True,
-    )
-    order = models.ForeignKey(
-        Order,
-        on_delete=models.CASCADE,
-        related_name='products',
-        verbose_name='Заказы',
-        null=True,
+        max_length=500,
         blank=True,
     )
     objects = ProductQuerySet.as_manager()
@@ -279,6 +300,3 @@ class RestaurantMenuItem(models.Model):
 
     def __str__(self):
         return f"{self.restaurant.name} - {self.product.name}"
-
-
-

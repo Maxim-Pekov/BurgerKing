@@ -1,13 +1,14 @@
-from django.db.models import F
+from django.db import transaction
 from django.http import JsonResponse
 from django.templatetags.static import static
-from .models import Product, Order, OrderItem
-from rest_framework.decorators import api_view
+
 from rest_framework import status
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
 from rest_framework.renderers import JSONRenderer
-from django.db import transaction
+
+from .models import Product, Order, OrderItem
 
 
 def banners_list_api(request):

@@ -22,7 +22,7 @@
       <th>Адрес доставки</th>
       <th>Комментарий</th>
       <th>Ресторан</th>
-      <th>Ссылка на админку</th>
+      <th>Редактировать</th>
     </tr>
 
     {% for item, restaurants in order_items %}
@@ -38,20 +38,23 @@
         <td>
             {% if restaurants|first == 'restaurant_selected' %}
               Готовит {{restaurants.1}}
+            {% elif restaurants|first == 'coordinate_error' %}
+              {{restaurants.1}}
             {% else %}
               <details>
                 <summary>Можно приготовить в:</summary>
+                <ul>
                 {% for restaurant in restaurants.1 %}
-                  {{restaurant}}
+                  <li>{{restaurant}}</li>
                 {% endfor %}
+                </ul>
               </details>
             {% endif %}
 
         </td>
         <td>
-          <a
-            href="{% url 'admin:foodcartapp_order_change' object_id=item.id|urlencode %}?next={{ request.get_full_path|urlencode }}">
-            Редактировать
+          <a href="{% url 'admin:foodcartapp_order_change' object_id=item.id|urlencode %}?next={{ request.get_full_path|urlencode }}">
+            ред.
           </a>
         </td>
       </tr>
