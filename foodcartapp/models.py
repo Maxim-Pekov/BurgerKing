@@ -1,3 +1,5 @@
+from collections import Counter
+
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from phonenumber_field.modelfields import PhoneNumberField
@@ -59,6 +61,33 @@ class OrderQuerySet(models.QuerySet):
         return self.annotate(total_sum=Sum((F('order_items__quantity') * F(
             'order_items__product__price'))))
 
+    def get_availability_restaurants(self):
+        products_in_orders = {}
+        rest_by_order = {}
+        for order in self:
+            items = OrderItem.objects.select_related('product').filter(
+                order=order)
+            products_in_orders[order] = [
+                item.product for item in items
+            ]
+        restaurants_menu_items = RestaurantMenuItem.objects.filter(
+            availability=True).select_related("product", "restaurant")
+        for order, products_in_order in products_in_orders.items():
+            restaurants_by_products = restaurants_menu_items.filter(
+                product__in=products_in_order)
+            restaurants_by_products = [
+                restaurant.restaurant for restaurant in restaurants_by_products
+            ]
+            number_of_restaurants = dict(Counter(restaurants_by_products))
+            restaurants = []
+            for restaurant_title, count in number_of_restaurants.items():
+                if count == len(products_in_order):
+                    restaurants.append(restaurant_title)
+            rest_by_order[order] = restaurants
+        for order in self:
+            order.restaurant_can_cook = rest_by_order[order]
+        return self
+
 
 class Status(models.TextChoices):
     RAW = 'RA', _('Необработанный')
@@ -93,7 +122,15 @@ class Order(models.Model):
     lastname = models.CharField('Фамилия', max_length=255, blank=True)
     phonenumber = PhoneNumberField('Телефон', db_index=True)
     address = models.CharField('Адрес', max_length=255)
-    comment = models.TextField('Коментарий')
+    comment = models.TextField('Коментарий', null=True, blank=True)
+    restaurant = models.ManyToManyField(
+        Restaurant,
+        verbose_name='Ресторан для приготовления',
+        related_name='orders',
+        null=True,
+        blank=True,
+
+    )
     registrated_at = models.DateTimeField(
         'Дата оформления',
         auto_now_add=True,

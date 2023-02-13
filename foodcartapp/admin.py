@@ -18,6 +18,8 @@ class RestaurantMenuItemInline(admin.TabularInline):
     model = RestaurantMenuItem
     extra = 0
 
+class OrderInline(admin.TabularInline):
+    model = Restaurant.orders.through
 
 @admin.register(Restaurant)
 class RestaurantAdmin(admin.ModelAdmin):
@@ -32,7 +34,7 @@ class RestaurantAdmin(admin.ModelAdmin):
         'contact_phone',
     ]
     inlines = [
-        RestaurantMenuItemInline
+        RestaurantMenuItemInline, OrderInline
     ]
 
 
@@ -119,7 +121,7 @@ class OrderItemAdmin(admin.ModelAdmin):
     def get_product(self, obj):
         return obj.product.name
 
-    def get_order(selfself, obj):
+    def get_order(self, obj):
         return obj.order.firstname
 
     def save_formset(self, request, form, formset, change):
@@ -146,11 +148,13 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [
         OrderItemInline,
     ]
+
     fieldsets = (
         ('Покупатель', {
             'fields': (
                 ('status', 'payment'), ('firstname', 'lastname'),
                 ('phonenumber', 'address'), ('comment',),
+                ('restaurant',)
             ),
         },),
         ('Время', {
@@ -165,6 +169,12 @@ class OrderAdmin(admin.ModelAdmin):
         models.CharField: {'widget': TextInput(attrs={'size':'20'})},
         models.TextField: {'widget': Textarea(attrs={'rows':2, 'cols':70})},
     }
+
+    def get_restaurant(self, obj):
+        orders = Order.objects.all().get_availability_restaurants()
+        restaurants_name = [restaurant.name for restaurant in orders.get(
+            id=obj.id).restaurant]
+        return restaurants_name
 
     def response_post_save_change(self, request, obj):
         res = super().response_post_save_change(request, obj)

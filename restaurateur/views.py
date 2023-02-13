@@ -1,4 +1,7 @@
+from collections import Counter
+from pprint import pprint
 from django import forms
+from django.db.models import Q
 from django.shortcuts import redirect, render
 from django.views import View
 from django.urls import reverse_lazy
@@ -8,7 +11,8 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 
 
-from foodcartapp.models import Product, Restaurant, Order, Status
+from foodcartapp.models import Product, Restaurant, Order, Status, OrderItem, \
+    Restaurant, RestaurantMenuItem
 
 
 class Login(forms.Form):
@@ -92,7 +96,37 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    orders = Order.objects.calculate_total_sum().exclude(status=Status.END)
+    orders = Order.objects.calculate_total_sum().exclude(
+        status=Status.END).get_availability_restaurants()
+    # products_in_orders = {}
+    # rest_by_order = {}
+    # for order in orders:
+    #     items = OrderItem.objects.select_related('product').filter(
+    #             order=order)
+    #     products_in_orders[order] = [
+    #         item.product for item in items
+    #     ]
+    # restaurants_menu_items = RestaurantMenuItem.objects.filter(availability=True).select_related("product", "restaurant")
+    # for order, products_in_order in products_in_orders.items():
+    #     r = restaurants_menu_items.filter(product__in=products_in_order)
+    #     f = [i.restaurant for i in r]
+    #     z = dict(Counter(f))
+    #     rest = []
+    #     for key, value in z.items():
+    #         if value == len(products_in_order):
+    #             rest.append(key)
+    #     pprint(r)
+    #     rest_by_order[order] = rest
+    context = []
+    for order in orders:
+        try:
+            context.append(
+                (order, ('restaurant_selected', order.restaurant.all()[0].name))
+            )
+        except IndexError:
+            context.append(
+                (order, ('restaurant_not_selected', order.restaurant_can_cook))
+            )
     return render(request, template_name='order_items.html', context={
-        'order_items': orders,
+        'order_items': context,
     })
