@@ -1,6 +1,7 @@
-from .coordinates import fetch_coordinates
 from geopy import distance
 from collections import Counter
+from .coordinates import fetch_coordinates, check_coordinates
+from geo_coordinates.models import Coordinate
 
 from django.db import models
 from django.conf import settings
@@ -89,21 +90,30 @@ class OrderQuerySet(models.QuerySet):
             restaurants = []
             for restaurant, count in number_of_restaurants.items():
                 restaurant_coordinate = (restaurant.lat, restaurant.lng)
-                try:
-                    order_coordinate = sorted(
-                        fetch_coordinates(
-                            settings.YANDEX_API_KEY, order.address
-                        ),
-                        reverse=True
-                    )
-                except TypeError:
-                    restaurants.append(
-                        'Ошибка определения координат'
-                    )
-                    continue
+
+                coordinates, is_created = Coordinate.objects.get_or_create(
+                    address=order.address,
+                    defaults={
+                        'lng': check_coordinates(order, restaurants)[0],
+                        'lat': check_coordinates(order, restaurants)[1],
+                    },
+                )
+                # try:
+                #     order_coordinate = sorted(
+                #         fetch_coordinates(
+                #             settings.YANDEX_API_KEY, order.address
+                #         ),
+                #         reverse=True
+                #     )
+                # except TypeError:
+                #     restaurants.append(
+                #         'Ошибка определения координат'
+                #     )
+                #     continue
+                # if
                 delivery_distance = distance.distance(
                     restaurant_coordinate,
-                    order_coordinate
+                    (coordinates.lng, coordinates.lat)
                 ).km
                 if delivery_distance > 100:
                     restaurants.append(
