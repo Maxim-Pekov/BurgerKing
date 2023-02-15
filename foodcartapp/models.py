@@ -90,27 +90,22 @@ class OrderQuerySet(models.QuerySet):
             restaurants = []
             for restaurant, count in number_of_restaurants.items():
                 restaurant_coordinate = (restaurant.lat, restaurant.lng)
-
-                coordinates, is_created = Coordinate.objects.get_or_create(
-                    address=order.address,
-                    defaults={
-                        'lng': check_coordinates(order, restaurants)[0],
-                        'lat': check_coordinates(order, restaurants)[1],
-                    },
-                )
-                # try:
-                #     order_coordinate = sorted(
-                #         fetch_coordinates(
-                #             settings.YANDEX_API_KEY, order.address
-                #         ),
-                #         reverse=True
-                #     )
-                # except TypeError:
-                #     restaurants.append(
-                #         'Ошибка определения координат'
-                #     )
-                #     continue
-                # if
+                try:
+                    coordinates = Coordinate.objects.get(
+                        address=order.address,
+                    )
+                except Coordinate.DoesNotExist:
+                    order_coordinates = fetch_coordinates(order.address)
+                    if not order_coordinates:
+                        restaurants.append(
+                            'Ошибка определения координат'
+                        )
+                        continue
+                    coordinates = Coordinate.objects.create(
+                        address=order.address,
+                        lng=order_coordinates[0],
+                        lat=order_coordinates[1],
+                    )
                 delivery_distance = distance.distance(
                     restaurant_coordinate,
                     (coordinates.lng, coordinates.lat)
