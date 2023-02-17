@@ -1,10 +1,9 @@
 from geopy import distance
 from collections import Counter
-from .coordinates import fetch_coordinates, check_coordinates
+from .coordinates import fetch_coordinates
 from geo_coordinates.models import Coordinate
 
 from django.db import models
-from django.conf import settings
 from django.db.models import Sum, F
 from django.utils.translation import gettext_lazy as _
 from phonenumber_field.modelfields import PhoneNumberField
@@ -71,9 +70,9 @@ class OrderQuerySet(models.QuerySet):
     def get_availability_restaurants(self):
         products_in_orders = {}
         rest_by_order = {}
+        order_items = OrderItem.objects.select_related('product', 'order')
         for order in self:
-            items = OrderItem.objects.select_related('product').\
-                filter(order=order)
+            items = order_items.filter(order=order)
             products_in_orders[order] = [
                 item.product for item in items
             ]
@@ -90,11 +89,12 @@ class OrderQuerySet(models.QuerySet):
             restaurants = []
             for restaurant, count in number_of_restaurants.items():
                 restaurant_coordinate = (restaurant.lat, restaurant.lng)
+                coordinates = Coordinate.objects.filter(
+                    address=order.address,
+                )
                 try:
-                    coordinates = Coordinate.objects.get(
-                        address=order.address,
-                    )
-                except Coordinate.DoesNotExist:
+                    coordinates = coordinates[0]
+                except IndexError:
                     order_coordinates = fetch_coordinates(order.address)
                     if not order_coordinates:
                         restaurants.append(
@@ -103,8 +103,8 @@ class OrderQuerySet(models.QuerySet):
                         continue
                     coordinates = Coordinate.objects.create(
                         address=order.address,
-                        lng=order_coordinates[0],
-                        lat=order_coordinates[1],
+                        lng=order_coordinates[1],
+                        lat=order_coordinates[0],
                     )
                 delivery_distance = distance.distance(
                     restaurant_coordinate,

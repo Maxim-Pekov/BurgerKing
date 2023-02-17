@@ -32,7 +32,8 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'phonenumber_field',
     'rest_framework',
-    'geo_coordinates'
+    'geo_coordinates',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
