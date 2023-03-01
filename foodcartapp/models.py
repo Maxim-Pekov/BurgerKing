@@ -109,9 +109,8 @@ class OrderQuerySet(models.QuerySet):
                     (coordinates.lng, coordinates.lat)
                 ).km
                 if delivery_distance > 100:
-                    restaurants.append(
-                        'Ошибка определения координат'
-                    )
+                    restaurants = None
+                    continue
                 elif count == len(products_in_order):
                     restaurants.append(
                         f'{restaurant.name}  {round(delivery_distance, 1)} км.'

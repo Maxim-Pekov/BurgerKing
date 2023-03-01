@@ -94,20 +94,19 @@ def register_order(request):
         phonenumber=serializer.validated_data['phonenumber'],
         address=serializer.validated_data['address']
     )
-
+    temp_data = []
     for product_by_order in serializer.validated_data['products']:
         product_id = product_by_order['product'].id
         product_qlt = product_by_order['quantity']
-
         product = Product.objects.get(id=product_id)
-
-        OrderItem.objects.create(
+        total_price = product.price * product_qlt
+        temp_data.append(OrderItem(
             order=order,
             product=product,
             quantity=product_qlt,
-            price=product.price * product_qlt,
-        )
-
+            price=total_price,
+        ))
+    OrderItem.objects.bulk_create(temp_data, batch_size=999)
     serializer = OrderSerializer(order)
     content = JSONRenderer().render(serializer.data)
     return Response(content, status=status.HTTP_200_OK)
