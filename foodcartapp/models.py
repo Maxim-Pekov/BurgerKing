@@ -97,9 +97,7 @@ class OrderQuerySet(models.QuerySet):
                 except IndexError:
                     order_coordinates = fetch_coordinates(order.address)
                     if not order_coordinates:
-                        restaurants.append(
-                            'Ошибка определения координат'
-                        )
+                        restaurants = None
                         continue
                     coordinates = Coordinate.objects.create(
                         address=order.address,
@@ -118,7 +116,8 @@ class OrderQuerySet(models.QuerySet):
                     restaurants.append(
                         f'{restaurant.name}  {round(delivery_distance, 1)} км.'
                     )
-            restaurants = sorted(restaurants, key=lambda i: i[-8:-6])
+            if restaurants:
+                restaurants = sorted(restaurants, key=lambda i: i[-8:-6])
             rest_by_order[order] = restaurants
         for order in self:
             order.restaurant_can_cook = rest_by_order[order]

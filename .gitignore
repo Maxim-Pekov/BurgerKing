@@ -1,6 +1,8 @@
 bundles/**
 node_modules/
 media/
+.idea/
+setup.cfg
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

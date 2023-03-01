@@ -104,7 +104,7 @@ def view_orders(request):
     context = []
 
     for order in orders:
-        if order.restaurant_can_cook[0] == 'Ошибка определения координат':
+        if not order.restaurant_can_cook:
             context.append(
                 (
                     order,
