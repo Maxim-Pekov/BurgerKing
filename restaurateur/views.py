@@ -104,28 +104,20 @@ def view_orders(request):
     context = []
 
     for order in orders:
-        if not order.restaurant_can_cook:
+        try:
             context.append(
                 (
                     order,
-                    ('coordinate_error', 'Ошибка определения координат')
+                    ('restaurant_selected', order.restaurant.all()[0].name)
                 )
             )
-        else:
-            try:
-                context.append(
-                    (
-                        order,
-                        ('restaurant_selected', order.restaurant.all()[0].name)
-                    )
+        except IndexError:
+            context.append(
+                (
+                    order,
+                    ('restaurant_not_selected', order.restaurant_can_cook)
                 )
-            except IndexError:
-                context.append(
-                    (
-                        order,
-                        ('restaurant_not_selected', order.restaurant_can_cook)
-                    )
-                )
+            )
     return render(request, template_name='order_items.html', context={
         'order_items': context,
     })

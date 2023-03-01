@@ -38,8 +38,8 @@
         <td>
             {% if restaurants|first == 'restaurant_selected' %}
               Готовит {{restaurants.1}}
-            {% elif restaurants|first == 'coordinate_error' %}
-              {{restaurants.1}}
+            {% elif not restaurants.1 %}
+              Ошибка определения координат
             {% else %}
               <details>
                 <summary>Можно приготовить в:</summary>
