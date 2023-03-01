@@ -8,5 +8,5 @@ class CoordinateAdmin(admin.ModelAdmin):
         'address',
         'lng',
         'lat',
-        'datetime'
+        'created_at'
     ]

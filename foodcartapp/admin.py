@@ -6,6 +6,7 @@ from .models import RestaurantMenuItem, Order, OrderItem
 from django.db import models
 from django.db.models import F
 from django.contrib import admin
+from django.conf import settings
 from django.shortcuts import reverse
 from django.utils.html import format_html
 from django.forms import TextInput, Textarea
@@ -195,7 +196,7 @@ class OrderAdmin(admin.ModelAdmin):
     def response_post_save_change(self, request, obj):
         res = super().response_post_save_change(request, obj)
         if url_has_allowed_host_and_scheme(
-            request.META['SERVER_NAME'], '127.0.0.1:8000'
+            request.META['SERVER_NAME'], settings.ALLOWED_HOSTS
         ):
             if "next" in request.GET:
                 return HttpResponseRedirect('/manager/orders')
