@@ -63,7 +63,7 @@ class OrderQuerySet(models.QuerySet):
     def calculate_total_sum(self):
         return self.annotate(
             total_sum=Sum(
-                (F('order_items__quantity') * F('order_items__product__price'))
+                F('order_items__total_price')
             )
         )
 
@@ -234,11 +234,6 @@ class Product(models.Model):
         return self.name
 
 
-class OrderItemQuerySet(models.QuerySet):
-    def price_sum(self):
-        return self.annotate(sum_price=(F('quantity') * F('product__price')))
-
-
 class OrderItem(models.Model):
     order = models.ForeignKey(
         Order,
@@ -259,13 +254,12 @@ class OrderItem(models.Model):
         validators=[MinValueValidator(0),
                     MaxValueValidator(100)]
     )
-    price = models.DecimalField(
+    total_price = models.DecimalField(
         'Стоймость',
         max_digits=8,
         decimal_places=2,
         validators=[MinValueValidator(0, 'Цена не может быть меньше 0')]
     )
-    objects = OrderItemQuerySet.as_manager()
 
     class Meta:
         verbose_name = 'Пункт меню заказа'

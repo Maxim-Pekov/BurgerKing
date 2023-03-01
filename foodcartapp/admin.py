@@ -128,8 +128,8 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
-    list_display = ('get_product', 'get_order', 'quantity', 'price')
-    fields = ('quantity', 'price')
+    list_display = ('get_product', 'get_order', 'quantity', 'total_price')
+    fields = ('quantity', 'total_price')
 
     def get_product(self, obj):
         return obj.product.name
