@@ -34,7 +34,11 @@
         <td>{{item.firstname}} {{item.lastname}}</td>
         <td>{{item.phonenumber}}</td>
         <td>{{item.address}}</td>
-        <td>{{item.comment}}</td>
+        {% if item.comment %}
+          <td>{{item.comment}}</td>
+        {% else %}
+          <td></td>
+        {% endif %}
         <td>
             {% if restaurants|first == 'restaurant_selected' %}
               Готовит {{restaurants.1}}

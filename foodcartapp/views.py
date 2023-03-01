@@ -85,27 +85,29 @@ class OrderSerializer(ModelSerializer):
 @api_view(['POST'])
 def register_order(request):
     serializer = OrderSerializer(data=request.data)
-    if serializer.is_valid(raise_exception=True):
-        order = Order.objects.create(
-            firstname=serializer.validated_data['firstname'],
-            lastname=serializer.validated_data['lastname'],
-            phonenumber=serializer.validated_data['phonenumber'],
-            address=serializer.validated_data['address']
+    if not serializer.is_valid(raise_exception=True):
+        return
+
+    order = Order.objects.create(
+        firstname=serializer.validated_data['firstname'],
+        lastname=serializer.validated_data['lastname'],
+        phonenumber=serializer.validated_data['phonenumber'],
+        address=serializer.validated_data['address']
+    )
+
+    for product_by_order in serializer.validated_data['products']:
+        product_id = product_by_order['product'].id
+        product_qlt = product_by_order['quantity']
+
+        product = Product.objects.get(id=product_id)
+
+        OrderItem.objects.create(
+            order=order,
+            product=product,
+            quantity=product_qlt,
+            price=product.price * product_qlt,
         )
 
-        for product_by_order in serializer.validated_data['products']:
-            product_id = product_by_order['product'].id
-            product_qlt = product_by_order['quantity']
-
-            product = Product.objects.get(id=product_id)
-
-            OrderItem.objects.create(
-                order=order,
-                product=product,
-                quantity=product_qlt,
-                price=product.price * product_qlt,
-            )
-
-        serializer = OrderSerializer(order)
-        content = JSONRenderer().render(serializer.data)
-        return Response(content, status=status.HTTP_200_OK)
+    serializer = OrderSerializer(order)
+    content = JSONRenderer().render(serializer.data)
+    return Response(content, status=status.HTTP_200_OK)
