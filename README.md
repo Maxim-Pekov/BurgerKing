@@ -59,7 +59,7 @@ pip install -r requirements.txt
 похожи на эти:
 ```sh
 SECRET_KEY=django-insecure-0if40nf4nf93n4
-YANDEX_API_KEY=6cd6d555-de18-4e64-a877-153ffb3c3c9c
+YANDEX_API_KEY=6cd6d599-de18-5r5r-a877-153ffb3c1v1v
 ```
 
 Создайте файл базы данных SQLite и отмигрируйте её следующей командой:
@@ -149,7 +149,9 @@ Parcel будет следить за файлами в каталоге `bundle
 
 - `DEBUG` — дебаг-режим. Поставьте `False`.
 - `SECRET_KEY` — секретный ключ проекта. Он отвечает за шифрование на сайте. Например, им зашифрованы все пароли на вашем сайте.
-- `ALLOWED_HOSTS` — [см. документацию Django](https://docs.djangoproject.com/en/3.1/ref/settings/#allowed-hosts)
+- `ALLOWED_HOSTS` — [см. документацию Django](https://docs.djangoproject.
+  com/en/3.1/ref/settings/#allowed-hosts).
+- `YANDEX_API_KEY` — 6cd6d599-de18-5r5r-a877-153ffb3c1v1v.
 
 ## Цели проекта
 
