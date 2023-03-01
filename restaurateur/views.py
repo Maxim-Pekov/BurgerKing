@@ -100,7 +100,7 @@ def view_restaurants(request):
 def view_orders(request):
     orders = Order.objects.calculate_total_sum().\
         exclude(status=Status.END).\
-        get_availability_restaurants()
+        get_restaurants_availability()
     context = []
 
     for order in orders:

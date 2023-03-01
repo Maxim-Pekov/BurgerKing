@@ -67,7 +67,7 @@ class OrderQuerySet(models.QuerySet):
             )
         )
 
-    def get_availability_restaurants(self):
+    def get_restaurants_availability(self):
         products_in_orders = {}
         rest_by_order = {}
         order_items = OrderItem.objects.select_related('product', 'order')

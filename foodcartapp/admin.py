@@ -187,7 +187,7 @@ class OrderAdmin(admin.ModelAdmin):
     }
 
     def get_restaurant(self, obj):
-        orders = Order.objects.all().get_availability_restaurants()
+        orders = Order.objects.all().get_restaurants_availability()
         restaurants_name = [
             restaurant.name for restaurant in orders.get(id=obj.id).restaurant
         ]
