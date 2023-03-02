@@ -156,7 +156,7 @@ class Order(models.Model):
     lastname = models.CharField('Фамилия', max_length=255, blank=True)
     phonenumber = PhoneNumberField('Телефон', db_index=True)
     address = models.CharField('Адрес', max_length=255)
-    comment = models.TextField('Коментарий', null=True, blank=True)
+    comment = models.TextField('Коментарий', blank=True)
     restaurant = models.ManyToManyField(
         Restaurant,
         verbose_name='Ресторан для приготовления',
