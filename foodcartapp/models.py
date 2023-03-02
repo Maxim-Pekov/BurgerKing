@@ -134,7 +134,7 @@ class Status(models.TextChoices):
 class Payment(models.TextChoices):
     CASH = 'CS', _('Наличностью')
     CARD = 'CD', _('Электронно')
-    RAW = 'NO', _('Невыбрано')
+    RAW = 'NO', _('Не выбрано')
 
 
 class Order(models.Model):
