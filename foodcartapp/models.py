@@ -251,7 +251,7 @@ class OrderItem(models.Model):
         'Колличество',
         default=1,
         db_index=True,
-        validators=[MinValueValidator(0),
+        validators=[MinValueValidator(1),
                     MaxValueValidator(100)]
     )
     total_price = models.DecimalField(
