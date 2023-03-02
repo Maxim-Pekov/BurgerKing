@@ -157,7 +157,7 @@ class Order(models.Model):
     phonenumber = PhoneNumberField('Телефон', db_index=True)
     address = models.CharField('Адрес', max_length=255)
     comment = models.TextField('Коментарий', blank=True)
-    restaurant = models.ManyToManyField(
+    cooking_restaurant = models.ManyToManyField(
         Restaurant,
         verbose_name='Ресторан для приготовления',
         related_name='orders',
