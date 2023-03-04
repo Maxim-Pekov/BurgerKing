@@ -8,7 +8,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import user_passes_test
 
-from foodcartapp.models import Product, Order, Status, Restaurant
+from foodcartapp.models import Product, Order, Restaurant
 
 
 class Login(forms.Form):
@@ -99,7 +99,7 @@ def view_restaurants(request):
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
     orders = Order.objects.calculate_total_sum().\
-        exclude(status=Status.END).\
+        exclude(status=Order.Status.END).\
         get_restaurants_availability()
     context = []
 

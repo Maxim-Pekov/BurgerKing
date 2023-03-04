@@ -123,21 +123,19 @@ class OrderQuerySet(models.QuerySet):
         return self
 
 
-class Status(models.TextChoices):
-    RAW = 'RA', _('Необработанный')
-    HIRED = 'HR', _('Принят в работу')
-    ASSEMBLY = 'AS', _('Сборка')
-    DELIVERY = 'DL', _('Доставка')
-    END = 'EN', _('Выполнен')
-
-
-class Payment(models.TextChoices):
-    CASH = 'CS', _('Наличностью')
-    CARD = 'CD', _('Электронно')
-    RAW = 'NO', _('Не выбрано')
-
-
 class Order(models.Model):
+    class Status(models.TextChoices):
+        RAW = 'RA', _('Необработанный')
+        HIRED = 'HR', _('Принят в работу')
+        ASSEMBLY = 'AS', _('Сборка')
+        DELIVERY = 'DL', _('Доставка')
+        END = 'EN', _('Выполнен')
+
+    class Payment(models.TextChoices):
+        CASH = 'CS', _('Наличностью')
+        CARD = 'CD', _('Электронно')
+        RAW = 'NO', _('Не выбрано')
+
     status = models.CharField(
         'Статус заказа',
         max_length=2,
