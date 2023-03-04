@@ -21,9 +21,7 @@ class RestaurantMenuItemInline(admin.TabularInline):
 
 
 class OrderInline(admin.TabularInline):
-    model = Restaurant.orders.through
-    verbose_name = 'Заказ'
-    verbose_name_plural = 'Заказы'
+    model = Order
     extra = 0
 
 
@@ -155,7 +153,7 @@ class OrderItemInline(admin.TabularInline):
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = (
-        'status', 'payment', 'firstname', 'lastname', 'phonenumber', 'address'
+        'status', 'payment', 'firstname', 'lastname', 'phonenumber', 'address',
     )
     list_display_links = ('firstname', 'lastname', 'address')
     list_editable = ('status', 'payment')
@@ -170,7 +168,7 @@ class OrderAdmin(admin.ModelAdmin):
             'fields': (
                 ('status', 'payment'), ('firstname', 'lastname'),
                 ('phonenumber', 'address'), ('comment',),
-                ('restaurant',)
+                ('cooking_restaurant',)
             ),
         },),
         ('Время', {

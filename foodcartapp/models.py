@@ -157,10 +157,12 @@ class Order(models.Model):
     phonenumber = PhoneNumberField('Телефон', db_index=True)
     address = models.CharField('Адрес', max_length=255)
     comment = models.TextField('Коментарий', blank=True)
-    cooking_restaurant = models.ManyToManyField(
+    cooking_restaurant = models.ForeignKey(
         Restaurant,
         verbose_name='Ресторан для приготовления',
         related_name='orders',
+        on_delete=models.SET_NULL,
+        null=True,
         blank=True,
     )
     registrated_at = models.DateTimeField(
