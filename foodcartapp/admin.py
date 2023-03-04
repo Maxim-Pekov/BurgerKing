@@ -22,6 +22,7 @@ class RestaurantMenuItemInline(admin.TabularInline):
 
 class OrderInline(admin.TabularInline):
     model = Order
+    fields = ('payment', 'firstname', 'phonenumber')
     extra = 0
 
 

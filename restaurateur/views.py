@@ -108,10 +108,10 @@ def view_orders(request):
             context.append(
                 (
                     order,
-                    ('restaurant_selected', order.restaurant.all()[0].name)
+                    ('restaurant_selected', order.cooking_restaurant.name)
                 )
             )
-        except IndexError:
+        except AttributeError:
             context.append(
                 (
                     order,
