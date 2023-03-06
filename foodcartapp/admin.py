@@ -136,15 +136,6 @@ class OrderItemAdmin(admin.ModelAdmin):
     def get_order(self, obj):
         return obj.order.firstname
 
-    def save_formset(self, request, form, formset, change):
-        instances = formset.save(commit=False)
-
-        for instance in instances:
-            instance.price = request.annotate(
-                sum_price=(F('quantity') * F('product__price'))
-            )
-        instance.save()
-
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
