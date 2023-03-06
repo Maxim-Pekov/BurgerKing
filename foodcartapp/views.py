@@ -85,8 +85,7 @@ class OrderSerializer(ModelSerializer):
 @api_view(['POST'])
 def register_order(request):
     serializer = OrderSerializer(data=request.data)
-    if not serializer.is_valid(raise_exception=True):
-        return
+    serializer.is_valid(raise_exception=True)
 
     order = Order.objects.create(
         firstname=serializer.validated_data['firstname'],
