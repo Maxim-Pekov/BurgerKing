@@ -109,4 +109,4 @@ def register_order(request):
     OrderItem.objects.bulk_create(order_items, batch_size=999)
     serializer = OrderSerializer(order)
     content = JSONRenderer().render(serializer.data)
-    return Response(content, status=status.HTTP_200_OK)
+    return Response(content, status=status.HTTP_201_CREATED)
