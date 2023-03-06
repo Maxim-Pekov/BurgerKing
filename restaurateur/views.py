@@ -102,22 +102,21 @@ def view_orders(request):
         exclude(status=Order.Status.END).\
         get_restaurants_availability()
     context = []
-
     for order in orders:
         try:
-            context.append(
-                (
-                    order,
-                    ('restaurant_selected', order.cooking_restaurant.name)
-                )
+            cooking_restaurant = (
+                'restaurant_selected', order.cooking_restaurant.name
             )
         except AttributeError:
-            context.append(
-                (
-                    order,
-                    ('restaurant_not_selected', order.restaurant_can_cook)
-                )
+            cooking_restaurant = (
+                'restaurant_not_selected', order.restaurant_can_cook
             )
+        context.append(
+            (
+                order, cooking_restaurant
+            )
+        )
+
     return render(request, template_name='order_items.html', context={
         'order_items': context,
     })
