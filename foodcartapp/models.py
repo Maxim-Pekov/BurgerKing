@@ -125,11 +125,11 @@ class OrderQuerySet(models.QuerySet):
 
 class Order(models.Model):
     class Status(models.TextChoices):
-        RAW = 'RA', _('Необработанный')
-        HIRED = 'HR', _('Принят в работу')
-        ASSEMBLY = 'AS', _('Сборка')
+        RECEIVED = 'RE', _('Необработанный')
+        IN_PROCESSING = 'PR', _('Принят в работу')
+        COOKING = 'CO', _('Приготовление')
         DELIVERY = 'DL', _('Доставка')
-        END = 'EN', _('Выполнен')
+        CLOSED = 'CL', _('Выполнен')
 
     class Payment(models.TextChoices):
         CASH = 'CS', _('Наличностью')
@@ -140,7 +140,7 @@ class Order(models.Model):
         'Статус заказа',
         max_length=2,
         choices=Status.choices,
-        default=Status.RAW,
+        default=Status.RECEIVED,
         db_index=True
     )
     payment = models.CharField(
