@@ -189,6 +189,7 @@ class OrderAdmin(admin.ModelAdmin):
             request.META['SERVER_NAME'], settings.ALLOWED_HOSTS
         ):
             if "next" in request.GET:
-                return HttpResponseRedirect('/manager/orders')
+                return HttpResponseRedirect(request.GET['next'])
             else:
                 return res
+
