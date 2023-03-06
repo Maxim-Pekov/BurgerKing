@@ -1,5 +1,3 @@
-import requests
-
 from django import forms
 from django.views import View
 from django.urls import reverse_lazy
@@ -99,7 +97,7 @@ def view_restaurants(request):
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
     orders = Order.objects.calculate_total_sum().\
-        exclude(status=Order.Status.END).\
+        exclude(status=Order.Status.CLOSED).\
         get_restaurants_availability()
     context = []
     for order in orders:

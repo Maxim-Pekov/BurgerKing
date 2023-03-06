@@ -149,8 +149,8 @@ class OrderAdmin(admin.ModelAdmin):
     )
     list_display_links = ('firstname', 'lastname', 'address')
     list_editable = ('status', 'payment')
-    list_filter = ('status', 'registrated_at', 'called_at', 'delivered_at')
-    readonly_fields = ('registrated_at',)
+    list_filter = ('status', 'registered_at', 'called_at', 'delivered_at')
+    readonly_fields = ('registered_at',)
     inlines = [
         OrderItemInline,
     ]
@@ -165,7 +165,7 @@ class OrderAdmin(admin.ModelAdmin):
         },),
         ('Время', {
              'fields': (
-                 ('registrated_at',),
+                 ('registered_at',),
                  ('called_at',),
                  ('delivered_at',)
              )

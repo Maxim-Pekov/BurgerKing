@@ -163,7 +163,7 @@ class Order(models.Model):
         null=True,
         blank=True,
     )
-    registrated_at = models.DateTimeField(
+    registered_at = models.DateTimeField(
         'Дата оформления',
         auto_now_add=True,
         db_index=True
@@ -184,7 +184,7 @@ class Order(models.Model):
     objects = OrderQuerySet.as_manager()
 
     class Meta:
-        ordering = ['-registrated_at']
+        ordering = ['-registered_at']
         verbose_name = 'Заказ'
         verbose_name_plural = 'Заказы'
 
