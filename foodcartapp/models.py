@@ -1,6 +1,6 @@
 from geopy import distance
 from collections import Counter
-from .coordinates import fetch_coordinates
+from .geocoding import fetch_coordinates
 from geo_coordinates.models import Coordinate
 
 from django.db import models
