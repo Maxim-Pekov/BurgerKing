@@ -1,8 +1,8 @@
 from django.contrib import admin
-from .models import Coordinate
+from .models import Address
 
 
-@admin.register(Coordinate)
+@admin.register(Address)
 class CoordinateAdmin(admin.ModelAdmin):
     list_display = [
         'address',

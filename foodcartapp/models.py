@@ -1,7 +1,7 @@
 from geopy import distance
 from collections import Counter
 from .geocoding import fetch_coordinates
-from geo_coordinates.models import Coordinate
+from geo_coordinates.models import Address
 
 from django.db import models
 from django.db.models import Sum, F
@@ -89,7 +89,7 @@ class OrderQuerySet(models.QuerySet):
             restaurants = []
             for restaurant, count in number_of_restaurants.items():
                 restaurant_coordinate = (restaurant.lat, restaurant.lng)
-                coordinates = Coordinate.objects.filter(
+                coordinates = Address.objects.filter(
                     address=order.address,
                 )
                 try:
@@ -99,7 +99,7 @@ class OrderQuerySet(models.QuerySet):
                     if not order_coordinates:
                         restaurants = None
                         continue
-                    coordinates = Coordinate.objects.create(
+                    coordinates = Address.objects.create(
                         address=order.address,
                         lng=order_coordinates[1],
                         lat=order_coordinates[0],
