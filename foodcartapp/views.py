@@ -80,32 +80,25 @@ class OrderSerializer(ModelSerializer):
             'id', 'firstname', 'lastname', 'phonenumber', 'address', 'products'
         ]
 
+    def create(self, validated_data):
+        products = validated_data.pop('products')
+        order = Order.objects.create(**validated_data)
+        for product in products:
+            cost = product['product'].price
+            quantity = product['quantity']
+            OrderItem.objects.create(
+                order=order,
+                total_price=cost * quantity,
+                **product
+            )
+        return order
+
 
 @transaction.atomic
 @api_view(['POST'])
 def register_order(request):
     serializer = OrderSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-
-    order = Order.objects.create(
-        firstname=serializer.validated_data['firstname'],
-        lastname=serializer.validated_data['lastname'],
-        phonenumber=serializer.validated_data['phonenumber'],
-        address=serializer.validated_data['address']
-    )
-    order_items = []
-    for product_by_order in serializer.validated_data['products']:
-        product_id = product_by_order['product'].id
-        product_qlt = product_by_order['quantity']
-        product = Product.objects.get(id=product_id)
-        total_price_for_one_product = product.price * product_qlt
-        order_items.append(OrderItem(
-            order=order,
-            product=product,
-            quantity=product_qlt,
-            total_price=total_price_for_one_product,
-        ))
-
-    OrderItem.objects.bulk_create(order_items, batch_size=999)
-    serializer = OrderSerializer(order)
-    return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
+    serializer.save()
+    serializer_data = serializer.data
+    return Response(serializer_data)
