@@ -1,19 +1,18 @@
-from geopy import distance
-from collections import Counter
-from .geocoding import fetch_coordinates
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
+from django.db.models import F, Sum
+from django.db.models import OuterRef, Subquery
+from django.utils.translation import gettext_lazy as _
+
 from geo_coordinates.models import Address
 
-from django.db import models
-from django.db.models import Sum, F
-from django.utils.translation import gettext_lazy as _
 from phonenumber_field.modelfields import PhoneNumberField
-from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class Restaurant(models.Model):
     name = models.CharField(
         'название',
-        max_length=50
+        max_length=50,
     )
     address = models.CharField(
         'адрес',
@@ -48,7 +47,7 @@ class ProductQuerySet(models.QuerySet):
 class ProductCategory(models.Model):
     name = models.CharField(
         'название',
-        max_length=50
+        max_length=50,
     )
 
     class Meta:
@@ -63,64 +62,20 @@ class OrderQuerySet(models.QuerySet):
     def calculate_total_sum(self):
         return self.annotate(
             total_sum=Sum(
-                F('items__total_price')
-            )
+                F('items__total_price'),
+            ),
         )
 
-    def get_restaurants_availability(self):
-        products_in_orders = {}
-        rest_by_order = {}
-        order_items = OrderItem.objects.select_related('product', 'order')
-        for order in self:
-            items = order_items.filter(order=order)
-            products_in_orders[order] = [
-                item.product for item in items
-            ]
-        restaurants_menu_items = RestaurantMenuItem.objects.\
-            filter(availability=True).select_related("product", "restaurant")
-        for order, products_in_order in products_in_orders.items():
-            restaurants_by_products = restaurants_menu_items.\
-                filter(product__in=products_in_order)
+    def fetch_lat_coordinate(self):
+        address = Address.objects.filter(address=OuterRef('address'))
+        return self.annotate(
+            address_lat_coordinate=Subquery(address.values("lat")),
+        )
 
-            restaurants_by_products = [
-                restaurant.restaurant for restaurant in restaurants_by_products
-            ]
-            number_of_restaurants = dict(Counter(restaurants_by_products))
-            restaurants = []
-            for restaurant, count in number_of_restaurants.items():
-                restaurant_coordinate = (restaurant.lat, restaurant.lng)
-                coordinates = Address.objects.filter(
-                    address=order.address,
-                )
-                try:
-                    coordinates = coordinates[0]
-                except IndexError:
-                    order_coordinates = fetch_coordinates(order.address)
-                    if not order_coordinates:
-                        restaurants = None
-                        continue
-                    coordinates = Address.objects.create(
-                        address=order.address,
-                        lng=order_coordinates[1],
-                        lat=order_coordinates[0],
-                    )
-                delivery_distance = distance.distance(
-                    restaurant_coordinate,
-                    (coordinates.lng, coordinates.lat)
-                ).km
-                if delivery_distance > 100:
-                    restaurants = None
-                    continue
-                elif count == len(products_in_order):
-                    restaurants.append(
-                        f'{restaurant.name}  {round(delivery_distance, 1)} км.'
-                    )
-            if restaurants:
-                restaurants = sorted(restaurants, key=lambda i: i[-8:-6])
-            rest_by_order[order] = restaurants
-        for order in self:
-            order.restaurant_can_cook = rest_by_order[order]
-        return self
+    def fetch_lng_coordinate(self):
+        address = Address.objects.filter(address=OuterRef('address'))
+        return self.annotate(address_lng_coordinate=Subquery(address.values(
+            "lng")))
 
 
 class Order(models.Model):
@@ -141,14 +96,14 @@ class Order(models.Model):
         max_length=2,
         choices=Status.choices,
         default=Status.RECEIVED,
-        db_index=True
+        db_index=True,
     )
     payment = models.CharField(
         'Оплата',
         max_length=2,
         choices=Payment.choices,
         default=Payment.RAW,
-        db_index=True
+        db_index=True,
     )
     firstname = models.CharField('Имя', max_length=255, db_index=True)
     lastname = models.CharField('Фамилия', max_length=255, blank=True)
@@ -166,19 +121,19 @@ class Order(models.Model):
     registered_at = models.DateTimeField(
         'Дата оформления',
         auto_now_add=True,
-        db_index=True
+        db_index=True,
     )
     called_at = models.DateTimeField(
         'Дата звонка',
         db_index=True,
         null=True,
-        blank=True
+        blank=True,
     )
     delivered_at = models.DateTimeField(
         'Дата доставки',
         db_index=True,
         null=True,
-        blank=True
+        blank=True,
     )
 
     objects = OrderQuerySet.as_manager()
@@ -195,7 +150,7 @@ class Order(models.Model):
 class Product(models.Model):
     name = models.CharField(
         'название',
-        max_length=50
+        max_length=50,
     )
     category = models.ForeignKey(
         ProductCategory,
@@ -209,10 +164,10 @@ class Product(models.Model):
         'цена',
         max_digits=8,
         decimal_places=2,
-        validators=[MinValueValidator(0)]
+        validators=[MinValueValidator(0)],
     )
     image = models.ImageField(
-        'картинка'
+        'картинка',
     )
     special_status = models.BooleanField(
         'спец.предложение',
@@ -239,26 +194,26 @@ class OrderItem(models.Model):
         Order,
         on_delete=models.CASCADE,
         related_name='items',
-        verbose_name='заказ'
+        verbose_name='заказ',
     )
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
         related_name='order_items',
-        verbose_name='продукт'
+        verbose_name='продукт',
     )
     quantity = models.PositiveSmallIntegerField(
         'Колличество',
         default=1,
         db_index=True,
         validators=[MinValueValidator(1),
-                    MaxValueValidator(100)]
+                    MaxValueValidator(100)],
     )
     total_price = models.DecimalField(
         'Стоимость',
         max_digits=8,
         decimal_places=2,
-        validators=[MinValueValidator(0, 'Цена не может быть меньше 0')]
+        validators=[MinValueValidator(0, 'Цена не может быть меньше 0')],
     )
 
     class Meta:
@@ -285,14 +240,14 @@ class RestaurantMenuItem(models.Model):
     availability = models.BooleanField(
         'в продаже',
         default=True,
-        db_index=True
+        db_index=True,
     )
 
     class Meta:
         verbose_name = 'пункт меню ресторана'
         verbose_name_plural = 'пункты меню ресторана'
         unique_together = [
-            ['restaurant', 'product']
+            ['restaurant', 'product'],
         ]
 
     def __str__(self):
