@@ -1,10 +1,11 @@
 from .models import Product
-from .models import ProductCategory
 from .models import Restaurant
+from .models import ProductCategory
+from geo_coordinates.models import Address
+from foodcartapp.geocoding import fetch_coordinates
 from .models import RestaurantMenuItem, Order, OrderItem
 
 from django.db import models
-from django.db.models import F
 from django.contrib import admin
 from django.conf import settings
 from django.shortcuts import reverse
@@ -189,6 +190,13 @@ class OrderAdmin(admin.ModelAdmin):
             request.META['SERVER_NAME'], settings.ALLOWED_HOSTS
         ):
             if "next" in request.GET:
+                address, is_created = Address.objects.get_or_create(
+                    address=obj.address,
+                )
+                if is_created:
+                    address.lat, address.lng = fetch_coordinates(
+                        obj.address)
+                    address.save()
                 return HttpResponseRedirect(request.GET['next'])
             else:
                 return res

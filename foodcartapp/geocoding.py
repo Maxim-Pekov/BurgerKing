@@ -1,5 +1,6 @@
 import requests
 
+from geopy import distance
 from django.conf import settings
 
 
@@ -15,8 +16,20 @@ def fetch_coordinates(address, apikey=settings.YANDEX_API_KEY):
         json()['response']['GeoObjectCollection']['featureMember']
 
     if not found_places:
-        return None
+        return (None, None)
 
     most_relevant = found_places[0]
     lon, lat = most_relevant['GeoObject']['Point']['pos'].split(" ")
     return lon, lat
+
+
+def fetch_distance_by_coordinate(restaurant_coordinate, order_coordinates):
+    if None in order_coordinates:
+        return
+    delivery_distance = distance.distance(
+        restaurant_coordinate,
+        order_coordinates
+    ).km
+    if delivery_distance > 100:
+        return
+    return round(delivery_distance, 2)

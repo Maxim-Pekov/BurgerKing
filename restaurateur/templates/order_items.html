@@ -40,16 +40,16 @@
           <td></td>
         {% endif %}
         <td>
-            {% if restaurants|first == 'restaurant_selected' %}
-              Готовит {{restaurants.1}}
+            {% if item.cooking_restaurant %}
+              Готовит {{item.cooking_restaurant}}
             {% elif not restaurants.1 %}
               Ошибка определения координат
             {% else %}
               <details>
                 <summary>Можно приготовить в:</summary>
                 <ul>
-                {% for restaurant in restaurants.1 %}
-                  <li>{{restaurant}}</li>
+                {% for restaurant, distance in restaurants %}
+                  <li>{{restaurant}} - {{distance}}км.</li>
                 {% endfor %}
                 </ul>
               </details>
