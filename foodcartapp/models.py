@@ -204,7 +204,6 @@ class OrderItem(models.Model):
     )
     quantity = models.PositiveSmallIntegerField(
         'Колличество',
-        default=1,
         db_index=True,
         validators=[MinValueValidator(1),
                     MaxValueValidator(100)],
