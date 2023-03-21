@@ -8,6 +8,7 @@ from .models import RestaurantMenuItem, Order, OrderItem
 from django.db import models
 from django.contrib import admin
 from django.conf import settings
+from django.utils.encoding import iri_to_uri
 from django.shortcuts import reverse
 from django.utils.html import format_html
 from django.forms import TextInput, Textarea
@@ -186,18 +187,17 @@ class OrderAdmin(admin.ModelAdmin):
 
     def response_post_save_change(self, request, obj):
         res = super().response_post_save_change(request, obj)
-        if url_has_allowed_host_and_scheme(
-            request.GET['next'], settings.ALLOWED_HOSTS
-        ):
-            if "next" in request.GET:
-                address, is_created = Address.objects.get_or_create(
-                    address=obj.address,
-                )
-                if is_created:
-                    address.lat, address.lng = fetch_coordinates(
-                        obj.address)
-                    address.save()
-                return HttpResponseRedirect(request.GET['next'])
-            else:
-                return res
+
+        if "next" in request.GET and url_has_allowed_host_and_scheme(request.GET['next'], None):
+            url = iri_to_uri(request.GET['next'])
+            address, is_created = Address.objects.get_or_create(
+                address=obj.address,
+            )
+            if is_created:
+                address.lat, address.lng = fetch_coordinates(
+                    obj.address)
+                address.save()
+            return HttpResponseRedirect(url)
+        else:
+            return res
 
