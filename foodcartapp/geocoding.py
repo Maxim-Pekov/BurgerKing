@@ -30,6 +30,4 @@ def fetch_distance_by_coordinate(restaurant_coordinate, order_coordinates):
         restaurant_coordinate,
         order_coordinates
     ).km
-    if delivery_distance > 100:
-        return
     return round(delivery_distance, 2)
