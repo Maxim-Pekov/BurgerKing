@@ -4,8 +4,6 @@ from django.templatetags.static import static
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.serializers import ModelSerializer
-from foodcartapp.geocoding import fetch_coordinates
-from geo_coordinates.models import Address
 from .models import Product, Order, OrderItem
 
 
@@ -99,12 +97,4 @@ def register_order(request):
     serializer.is_valid(raise_exception=True)
     serializer.save()
     serializer_data = serializer.data
-
-    address, is_created = Address.objects.get_or_create(
-        address=serializer_data['address'],
-    )
-    if is_created:
-        address.lng, address.lat = fetch_coordinates(address.address)
-        address.save()
-
     return Response(serializer_data)

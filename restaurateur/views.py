@@ -8,6 +8,7 @@ from django.urls import reverse_lazy
 from django.views import View
 
 from foodcartapp.geocoding import fetch_distance_by_coordinate
+from foodcartapp.geocoding import save_coordinate_by_order_address
 from foodcartapp.models import Order, Product, Restaurant, RestaurantMenuItem
 from foodcartapp.models import OrderItem
 
@@ -136,6 +137,8 @@ def view_orders(request):
                           order.items.all()]
         order_coordinates = order.address_lat_coordinate, \
             order.address_lng_coordinate
+        if None in order_coordinates:
+            order_coordinates = save_coordinate_by_order_address(order)
         for restaurant in restaurant_products_available:
             restaurant_coordinate = (restaurant.lng, restaurant.lat)
 
