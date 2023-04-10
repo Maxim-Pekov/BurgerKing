@@ -154,6 +154,7 @@ Parcel будет следить за файлами в каталоге `bundle
 - `YANDEX_API_KEY` — 6cd6d599-de18-5r5r-a877-153ffb3c1v1v.
 - ROLLBAR_TOKEN=56765c434cbhhh555ggg444fff777
 - ROLLBAR_ENVIRONMENT=development
+- POSTGRES_SETTINGS=postgres://user:password@localhost/user_app
 
 ## Цели проекта
 
