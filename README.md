@@ -152,6 +152,8 @@ Parcel будет следить за файлами в каталоге `bundle
 - `ALLOWED_HOSTS` — [см. документацию Django](https://docs.djangoproject.
   com/en/3.1/ref/settings/#allowed-hosts).
 - `YANDEX_API_KEY` — 6cd6d599-de18-5r5r-a877-153ffb3c1v1v.
+- ROLLBAR_TOKEN=56765c434cbhhh555ggg444fff777
+- ROLLBAR_ENVIRONMENT=development
 
 ## Цели проекта
 
