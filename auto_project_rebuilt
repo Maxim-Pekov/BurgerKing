@@ -1,0 +1,39 @@
+#!/bin/bash
+set -e
+
+sudo apt update
+echo apt update
+
+cd /opt/BurgerKing
+echo go to the /opt/BurgerKing directory
+
+git pull
+echo update repository
+
+. ./venv/bin/activate
+echo "activate env"
+
+pip install -r requirements.txt
+echo "install all requirements"
+
+python manage.py migrate
+echo "migrate bd"
+
+apt install nodejs==10.19.0
+apt install npm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.>
+nvm install v16.16.0
+npm ci --dev
+./node_modules/.bin/parcel build bundles-src/index.js --dist-dir bundl>
+echo "Preassembler frontend"
+
+python3 manage.py collectstatic
+echo "collectstatic"
+
+sudo systemctl restart burger_gunicorn.service
+sudo systemctl reload nginx.service
+echo "restart gunicorn and nginx servicies"
+
+echo "Congratulations, the deployment was successful"
+
+
