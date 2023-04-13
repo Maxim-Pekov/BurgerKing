@@ -35,6 +35,13 @@ sudo systemctl restart burger_gunicorn.service
 sudo systemctl reload nginx.service
 echo "Progress 9 of 9 -- restart gunicorn and nginx servicies"
 
+source ./.env
+CURRENT_COMMIT=$(git rev-parse --verify HEAD)
+COMMENT=$(git log -1 --format=%s)
+DATE=$(date)
+USER=$(git config remote.origin.url)
+curl -H "X-Rollbar-Access-Token: $ROLLBAR_TOKEN" -H "Content-Type: application/json" -X POST 'https://api.rollbar.com/api/1/deploy' -d '{>
+
 echo "Congratulations, the deployment was successful"
 
 
