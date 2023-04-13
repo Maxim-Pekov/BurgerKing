@@ -2,38 +2,39 @@
 set -e
 
 sudo apt update
-echo apt update
+echo "Progress 1 of 9 - apt update\n"
 
 cd /opt/BurgerKing
-echo go to the /opt/BurgerKing directory
+echo "Progress 2 of 9 -- go to the /opt/BurgerKing directory\n"
 
 git pull
-echo update repository
+echo "Progress 3 of 9 -- update repository\n"
 
 . ./venv/bin/activate
-echo "activate env"
+echo "Progress 4 of 9 -- activate env\n"
 
 pip install -r requirements.txt
-echo "install all requirements"
+echo "Progress 5 of 9 -- install all requirements\n"
 
 python manage.py migrate
-echo "migrate bd"
+echo "Progress 6 of 9 -- migrate bd\n"
 
-apt install nodejs==10.19.0
-apt install npm
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.>
+sudo apt install curl
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+source ~/.bashrc
 nvm install v16.16.0
 npm ci --dev
-./node_modules/.bin/parcel build bundles-src/index.js --dist-dir bundl>
-echo "Preassembler frontend"
+./node_modules/.bin/parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
+echo "Progress 7 of 9 - Preassembler frontend\n"
 
 python3 manage.py collectstatic
-echo "collectstatic"
+echo "Progress 8 of 9 -- collectstatic\n"
 
 sudo systemctl restart burger_gunicorn.service
 sudo systemctl reload nginx.service
-echo "restart gunicorn and nginx servicies"
+echo "Progress 9 of 9 -- restart gunicorn and nginx servicies\n"
 
 echo "Congratulations, the deployment was successful"
+
 
 
