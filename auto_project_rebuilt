@@ -1,39 +1,32 @@
 #!/bin/bash
 set -e
 
-sudo apt update
-echo "Progress 1 of 9 - apt update"
-
 cd /opt/BurgerKing
-echo "Progress 2 of 9 -- go to the /opt/BurgerKing directory"
+echo "Progress 1 of 8 -- go to the /opt/BurgerKing directory"
 
 git pull
-echo "Progress 3 of 9 -- update repository"
+echo "Progress 2 of 8 -- update repository"
 
 . ./venv/bin/activate
-echo "Progress 4 of 9 -- activate env"
+echo "Progress 3 of 8 -- activate env"
 
 pip install -r requirements.txt
-echo "Progress 5 of 9 -- install all requirements"
+echo "Progress 4 of 8 -- install all requirements"
 
 python manage.py migrate
-echo "Progress 6 of 9 -- migrate bd"
+echo "Progress 5 of 8 -- migrate bd"
 
-sudo apt install curl
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
 source ~/.bashrc
-nvm install v16.16.0
 npm ci --dev
-
 ./node_modules/.bin/parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
-echo "Progress 7 of 9 - Preassembler frontend"
+echo "Progress 6 of 8 - Preassembler frontend"
 
 python3 manage.py collectstatic --noinput
-echo "Progress 8 of 9 -- collectstatic"
+echo "Progress 7 of 8 -- collectstatic"
 
 sudo systemctl restart burger_gunicorn.service
 sudo systemctl reload nginx.service
-echo "Progress 9 of 9 -- restart gunicorn and nginx servicies"
+echo "Progress 8 of 8 -- restart gunicorn and nginx servicies"
 
 source ./.env
 CURRENT_COMMIT=$(git rev-parse --verify HEAD)
