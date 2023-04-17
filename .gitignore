@@ -3,6 +3,8 @@ node_modules/
 media/
 .idea/
 setup.cfg
+static/
+restaurateur/views.py.save
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
