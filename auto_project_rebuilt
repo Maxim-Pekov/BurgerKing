@@ -13,7 +13,7 @@ echo "Progress 3 of 8 -- activate env"
 pip install -r requirements.txt
 echo "Progress 4 of 8 -- install all requirements"
 
-python manage.py migrate
+python manage.py migrate --noinput
 echo "Progress 5 of 8 -- migrate bd"
 
 source ~/.bashrc
