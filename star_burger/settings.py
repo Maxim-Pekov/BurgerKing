@@ -19,7 +19,7 @@ SECRET_KEY = env('SECRET_KEY')
 DEBUG = env.bool('DEBUG', True)
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', ['127.0.0.1', 'localhost'])
-ROLLBAR_TOKEN = env.str('ROLLBAR_TOKEN')
+ROLLBAR_TOKEN = env.str('ROLLBAR_TOKEN', default='')
 
 INSTALLED_APPS = [
     'foodcartapp.apps.FoodcartappConfig',
@@ -49,16 +49,17 @@ MIDDLEWARE = [
     'rollbar.contrib.django.middleware.RollbarNotifierMiddlewareExcluding404',
 ]
 
-ROLLBAR = {
-    'access_token': ROLLBAR_TOKEN,
-    'environment': env.str('ROLLBAR_ENVIRONMENT'),
-    'branch': Repository('.').head.shorthand,
-    'root': BASE_DIR,
-    'ignorable_404_urls': (
-        re.compile('/index\.php'),
-        re.compile('/foobar'),
-    ),
-}
+if ROLLBAR_TOKEN:
+    ROLLBAR = {
+        'access_token': ROLLBAR_TOKEN,
+        'environment': env.str('ROLLBAR_ENVIRONMENT', default='development'),
+        'branch': Repository('.').head.shorthand,
+        'root': BASE_DIR,
+        'ignorable_404_urls': (
+            re.compile('/index\.php'),
+            re.compile('/foobar'),
+        ),
+    }
 
 REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'rollbar.contrib.django_rest_framework.post_exception_handler'
