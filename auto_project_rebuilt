@@ -35,9 +35,8 @@ DATE=$(date)
 USER=$(git config remote.origin.url)
 curl -H "X-Rollbar-Access-Token: $ROLLBAR_TOKEN" -H "Content-Type:
 application/json" -X POST 'https://api.rollbar.com/api/1/deploy' -d '{
-    "environment":
-    "production",
-    "revision": "dc1f74dee5",
+    "environment": "production",
+    "revision": "${CURRENT_COMMIT}",
     "rollbar_name": "john",
     "local_username":  "circle-ci",
     "comment": "Tuesday deployment",
