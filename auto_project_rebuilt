@@ -33,7 +33,16 @@ CURRENT_COMMIT=$(git rev-parse --verify HEAD)
 COMMENT=$(git log -1 --format=%s)
 DATE=$(date)
 USER=$(git config remote.origin.url)
-curl -H "X-Rollbar-Access-Token: $ROLLBAR_TOKEN" -H "Content-Type: application/json" -X POST 'https://api.rollbar.com/api/1/deploy' -d '{>
+curl -H "X-Rollbar-Access-Token: $ROLLBAR_TOKEN" -H "Content-Type:
+application/json" -X POST 'https://api.rollbar.com/api/1/deploy' -d '{
+    "environment":
+    "production",
+    "revision": "dc1f74dee5",
+    "rollbar_name": "john",
+    "local_username":  "circle-ci",
+    "comment": "Tuesday deployment",
+    "status": "succeeded"
+ }'
 
 echo "Congratulations, the deployment was successful"
 
