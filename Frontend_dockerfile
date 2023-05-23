@@ -1,0 +1,11 @@
+FROM node:16.16.0 as static
+LABEL maintainer='MaxPekov'
+
+WORKDIR /opt/BurgerKing
+
+COPY assets ./assets
+COPY bundles-src ./bundles-src
+COPY package.json .
+
+RUN npm i && \
+    ./node_modules/.bin/parcel build bundles-src/index.js --dist-dir bundles --public-url="./"

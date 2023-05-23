@@ -9,6 +9,10 @@ services:
     env_file:
       - .env
     restart: always
+  burger_frontend:
+    build: Frontend_dockerfile
+    depends_on:
+      - burger_postgres
   burger_project:
     build: .
     tty: true
