@@ -157,10 +157,48 @@ Parcel будет следить за файлами в каталоге `bundle
 - `ROLLBAR_ENVIRONMENT` - development               # optional
 - `POSTGRES_SETTINGS` - postgres://user:password@localhost/user_app
 
+## Как запустить prod-версию сайта в docker контейнере.
+
+- перейдите в директорию содержащюю manage.py файл
+- для редактирования файла конфигурации nginx, введите команду:
+```sh
+nano nginx/default.conf
+```
+- В файле `default.conf` замените в строчках 19 и 20 "max-burger.site" на ваше
+  доменное имя.
+- Запустите сборку приложений в контейнерах командой ниже.
+```sh
+sudo docker-compose up --build -d
+```
+- Выполните скрипт ниже, заменив "max-burger.site" на свое доменное имя и
+  емайл на свой, для получения сертификатов от certbot
+```sh
+docker-compose run --rm --entrypoint "\
+certbot certonly --webroot -w /var/www/certbot \
+  --email my-email@gmail.com \
+  -d max-burger.site \
+  --rsa-key-size 2048 \
+  --agree-tos \
+  --force-renewal" certbot
+  ```
+- Что бы создать супер пользователя воспользуйтесь командой и ответьте на
+  вопросы:
+```shell
+sudo docker-compose run burger_project python3 manage.py createsuperuser
+```
+
+
 ## Как автоматически пересобрать проект при подтягивании изменений
 
 - Предоставьте права на выполнение `chmod a+x auto_project_rebuilt`
 - Из корня проекта выполните команду `./auto_project_rebuilt`
+
+
+## Как автоматически пересобрать проект в docker контейнере при подтягивании изменений
+
+- Предоставьте права на выполнение `chmod a+x auto_project_rebuilt_use_docker`
+- Из корня проекта выполните команду `./auto_project_rebuilt_use_docker`
+-
 
 ## Цели проекта
 
