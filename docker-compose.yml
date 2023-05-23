@@ -1,48 +1,54 @@
-version: "3.9"
+version: "3.3"
 
 services:
   burger_postgres:
     image: postgres:15
     container_name: burger_postgres
     volumes:
-      - postgres:/var/postgresql/data
+      - ./persistent_data/postgres:/var/postgresql/data
     env_file:
       - .env
     restart: always
   burger_project:
     build: .
     tty: true
+    image: burger_project
     container_name: burger_project
     depends_on:
       - burger_postgres
     volumes:
-      - static_volume:/opt/starburger/static
-      - media_volume:/opt/starburger/media
+      - ./persistent_data/certbot/conf:/etc/letsencrypt
+      - ./persistent_data/certbot/www:/var/www/certbot
+      - ./persistent_data/static:/opt/BurgerKing/static
+      - ./persistent_data/media:/opt/BurgerKing/media
     env_file:
       - .env
     ports:
       - 8000:8000
-    command: >
-      bash -c "python3 manage.py collectstatic --noinput && \
-      python3 manage.py migrate --noinput && \
-      gunicorn star_burger.wsgi:application --bind 0.0.0.0:8000"
     restart: always
   nginx:
-    image: nginx:alpine
+    build:
+        context: ./nginx
+    image: burger_nginx
     depends_on:
       - burger_project
-    links:
-      - burger_project
-    volumes:
-      - ./data/nginx/dev:/etc/nginx/conf.d
-      - static_volume:/opt/starburger/static
-      - media_volume:/opt/starburger/media
     ports:
-      - 1337:80
+      - 80:80
+      - 443:443
+    volumes:
+      - ./persistent_data/certbot/conf:/etc/letsencrypt
+      - ./persistent_data/certbot/www:/var/www/certbot
+      - ./persistent_data/static:/opt/BurgerKing/static
+      - ./persistent_data/media:/opt/BurgerKing/media
     restart: always
-
+  certbot:
+    image: certbot/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    volumes:
+      - ./persistent_data/certbot/conf:/etc/letsencrypt
+      - ./persistent_data/certbot/www:/var/www/certbot
 
 volumes:
-  static_volume:
-  media_volume:
+  static:
+  media:
   postgres:
