@@ -4,7 +4,7 @@ from django.db.models import F, Sum
 from django.db.models import OuterRef, Subquery
 from django.utils.translation import gettext_lazy as _
 
-from geo_coordinates.models import Address
+from backend.geo_coordinates.models import Address
 
 from phonenumber_field.modelfields import PhoneNumberField
 

@@ -2,7 +2,7 @@ import requests
 
 from geopy import distance
 from django.conf import settings
-from geo_coordinates.models import Address
+from backend.geo_coordinates.models import Address
 
 
 def fetch_coordinates(address, apikey=settings.YANDEX_API_KEY):

@@ -53,7 +53,7 @@ if ROLLBAR_TOKEN:
     ROLLBAR = {
         'access_token': ROLLBAR_TOKEN,
         'environment': env.str('ROLLBAR_ENVIRONMENT', default='development'),
-        'branch': Repository('.').head.shorthand,
+        'branch': Repository('').head.shorthand,
         'root': BASE_DIR,
         'ignorable_404_urls': (
             re.compile('/index\.php'),

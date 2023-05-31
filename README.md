@@ -162,25 +162,20 @@ Parcel будет следить за файлами в каталоге `bundle
 - перейдите в директорию содержащюю manage.py файл
 - для редактирования файла конфигурации nginx, введите команду:
 ```sh
-nano nginx/default.conf
+nano nginx/prod/default.conf
+nano nginx/dev/default.conf
 ```
-- В файле `default.conf` замените в строчках 19 и 20 "max-burger.site" на ваше
+- В файле `nginx/prod/default.conf` замените в строчках 6 и 20 "max-burger.site" на ваше
   доменное имя.
 - Запустите сборку приложений в контейнерах командой ниже.
 ```sh
 sudo docker-compose up --build -d
 ```
-- Выполните скрипт ниже, заменив "max-burger.site" на свое доменное имя и
-  емайл на свой, для получения сертификатов от certbot
+- Запустить сборку приложения для production:
 ```sh
-docker-compose run --rm --entrypoint "\
-certbot certonly --webroot -w /var/www/certbot \
-  --email my-email@gmail.com \
-  -d max-burger.site \
-  --rsa-key-size 2048 \
-  --agree-tos \
-  --force-renewal" certbot
-  ```
+sudo docker-compose -f docker-compose.prod.yml up -d --build
+```
+
 - Что бы создать супер пользователя воспользуйтесь командой и ответьте на
   вопросы:
 ```shell

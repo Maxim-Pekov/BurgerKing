@@ -29,16 +29,31 @@ services:
     restart: always
   nginx:
     build:
-        context: ./nginx/dev
+        context: ./nginx/prod
     image: burger_nginx
     depends_on:
       - burger_project
     ports:
       - 80:80
+      - 443:443
     volumes:
+      - ./persistent_data/nginx:/etc/nginx/conf.d
+      - ./persistent_data/certbot/conf:/etc/letsencrypt
+      - ./persistent_data/certbot/www:/var/www/certbot
       - ./persistent_data/static:/opt/BurgerKing/static
       - ./persistent_data/media:/opt/BurgerKing/media
     restart: always
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    depends_on:
+      - nginx
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    volumes:
+      - ./persistent_data/certbot/conf:/etc/letsencrypt
+      - ./persistent_data/certbot/www:/var/www/certbot
+
 
 volumes:
   static:

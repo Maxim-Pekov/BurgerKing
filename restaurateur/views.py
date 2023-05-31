@@ -7,10 +7,10 @@ from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views import View
 
-from foodcartapp.geocoding import fetch_distance_by_coordinate
-from foodcartapp.geocoding import save_coordinate_by_order_address
-from foodcartapp.models import Order, Product, Restaurant, RestaurantMenuItem
-from foodcartapp.models import OrderItem
+from backend.foodcartapp import fetch_distance_by_coordinate
+from backend.foodcartapp import save_coordinate_by_order_address
+from backend.foodcartapp.models import Order, Product, Restaurant, RestaurantMenuItem
+from backend.foodcartapp.models import OrderItem
 
 
 class Login(forms.Form):
