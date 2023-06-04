@@ -9,6 +9,16 @@ services:
     env_file:
       - .env
     restart: always
+  burger_front:
+    build: ./front
+    tty: true
+    image: burger_front
+    container_name: burger_front
+    depends_on:
+      - burger_postgres
+    volumes:
+      - ./persistent_data/bundles:/opt/BurgerKing/bundles
+      - ./persistent_data/assents:/opt/BurgerKing/assets
   burger_project:
     build: .
     tty: true
@@ -19,6 +29,8 @@ services:
     volumes:
       - ./persistent_data/static:/opt/BurgerKing/static
       - ./persistent_data/media:/opt/BurgerKing/media
+      - ./persistent_data/bundles:/opt/BurgerKing/bundles
+      - ./persistent_data/assents:/opt/BurgerKing/assets
     env_file:
       - .env
     ports:
@@ -44,4 +56,6 @@ volumes:
   static:
   media:
   postgres:
+  bundles:
+  assets:
 

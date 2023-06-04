@@ -13,14 +13,17 @@ echo "Progress 3 of 8 -- activate env"
 pip install -r requirements.txt
 echo "Progress 4 of 8 -- install all requirements"
 
+cd /opt/BurgerKing/backend
 python manage.py migrate --noinput
 echo "Progress 5 of 8 -- migrate bd"
 
+cd /opt/BurgerKing/front
 source ~/.bashrc
 npm ci --dev
 ./node_modules/.bin/parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
 echo "Progress 6 of 8 - Preassembler frontend"
 
+cd /opt/BurgerKing/backend
 python3 manage.py collectstatic --noinput
 echo "Progress 7 of 8 -- collectstatic"
 
@@ -28,14 +31,15 @@ sudo systemctl restart burger_gunicorn.service
 sudo systemctl reload nginx.service
 echo "Progress 8 of 8 -- restart gunicorn and nginx servicies"
 
-source ./.env
+source /opt/BurgerKing/.env
 CURRENT_COMMIT=$(git rev-parse --verify HEAD)
 COMMENT=$(git log -1 --format=%s)
 DATE=$(date)
 USER=$(git config remote.origin.url)
-curl -H "X-Rollbar-Access-Token: $ROLLBAR_TOKEN" -H "Content-Type: application/json" -X POST 'https://api.rollbar.com/api/1/deploy' -d '{"environment": "'"$ROLLBAR_ENVIRONMENT"'", "revision": "'"$CURRENT_COMMIT"'", "rollbar_name": "'"$USER $DATE"'", "local_username": "'"$USER"'", "comment": "'"$COMMENT"'", "status": "succeeded"}'
+curl -H "X-Rollbar-Access-Token: $ROLLBAR_TOKEN" -H "Content-Type: application/json" -X POST 'https://api.rollb>
 
 echo "Congratulations, the deployment was successful"
+
 
 
 

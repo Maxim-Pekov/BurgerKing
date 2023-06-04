@@ -1,10 +1,10 @@
 bundles/**
 node_modules/
-media/
+backend/media/
 .idea/
 setup.cfg
 static/
-restaurateur/views.py.save
+backend/restaurateur/views.py.save
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
